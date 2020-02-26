@@ -102,3 +102,7 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Others
+config.json
+gamers.json
