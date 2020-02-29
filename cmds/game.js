@@ -11,7 +11,7 @@ module.exports = {
                 let gamers = JSON.parse(content);
 
                 const embed = new Discord.RichEmbed()
-                    .setTitle('Ready players')
+                    .setTitle(`Ready players - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));
                 message.channel.send(embed);
@@ -30,7 +30,7 @@ module.exports = {
                 });
 
                 const embed = new Discord.RichEmbed()
-                    .setTitle('Ready players')
+                    .setTitle(`Ready players - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));
                 message.channel.send(`You're now on the roster.`, {
@@ -51,7 +51,7 @@ module.exports = {
                 });
 
                 const embed = new Discord.RichEmbed()
-                    .setTitle('Ready players')
+                    .setTitle(`Ready players - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));
                 message.channel.send(`You've abandoned your friends.`, {
