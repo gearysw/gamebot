@@ -65,5 +65,11 @@ module.exports = {
                 message.channel.send('Roster cleared.');
             });
         }
+        if (args[0] === 'over') {
+            message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
+        }
+        if (args[0] === 'help') {
+            bot.commands.get('help').execute(bot, message, args);
+        }
     }
 }
