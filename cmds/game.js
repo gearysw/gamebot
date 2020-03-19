@@ -5,7 +5,7 @@ module.exports = {
     name: 'game',
     description: 'Add yourself to the list of people looking to join a game',
     execute: async (bot, message, args) => {
-        const games = ['csgo', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
+        const games = ['csgo', 'csgo-10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
 
         if (!games.includes(args[0])) {
             bot.commands.get('help').execute(bot, message, args);

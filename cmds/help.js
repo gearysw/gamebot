@@ -4,7 +4,7 @@ module.exports = {
     name: 'help',
     description: 'Help!',
     execute: async (bot, message, args) => {
-        const games = ['csgo', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
+        const games = ['csgo', 'csgo-10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
 
         const embed = new Discord.RichEmbed()
             .setTitle('Game Bot commands')
