@@ -106,3 +106,4 @@ dist
 # Others
 config.json
 gamers.json
+games/
