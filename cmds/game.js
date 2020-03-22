@@ -5,8 +5,9 @@ module.exports = {
     name: 'game',
     description: 'Add yourself to the list of people looking to join a game',
     execute: async (bot, message, args) => {
-        const games = ['csgo', 'csgo-10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
+        const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
 
+        if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) return message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
         if (!games.includes(args[0])) {
             bot.commands.get('help').execute(bot, message, args);
         }
@@ -74,9 +75,6 @@ module.exports = {
                 if (err) return console.error(err);
                 message.channel.send(`${args[0]} roster cleared`);
             });
-        }
-        if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) {
-            message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
         }
     }
 }
