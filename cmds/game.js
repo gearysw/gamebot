@@ -5,7 +5,7 @@ module.exports = {
     name: 'game',
     description: 'Add yourself to the list of people looking to join a game',
     execute: async (bot, message, args) => {
-        const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch'];
+        const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch', 'bf3'];
 
         if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) return message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
         if (!games.includes(args[0])) {
