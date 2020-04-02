@@ -1,12 +1,11 @@
-const { spawn } = require('child_process');
+// const { spawn } = require('child_process');
 const Discord = require('discord.js');
 const fs = require('fs');
-const { csgopath } = require('../config.json');
 
 module.exports = {
     name: 'scrim',
     description: 'Assign yourself to a team then start a server to jump right in',
-    execute: async (bot, message, args) => {
+    execute: async (bot, message, args, child) => {
         if (!args.length) {
             fs.readFile('./games/scrim.json', (err, content) => {
                 if (err) return console.error(err);
@@ -88,26 +87,11 @@ module.exports = {
         }
 
         if (args[0] === 'test') {
-            const child = spawn('/home/gearysw/csgo-ds/srcds_run', ['-game csgo', '-tickrate 128', '-net_port_try 1', '-usercon', '+game_type 0', '+game_mode 1', `+map ${args[1]}`]);
-            // const child = exec('sh run_server.sh');
-            message.channel.send(`process pid: ${child.pid}`);
-            console.log(child.pid);
-
-            child.stdout.on('data', data => {
-                console.log(`stdout: ${data}`);
-            });
-
-            child.stderr.on('data', data => {
-                console.log(`stderr: ${data}`);
-            });
-
-            child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
-            });
+            child.stdin.write(`./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map ${args[1]} +maxplayers 12\n`);
         }
 
-        if (args[0] === 'testkill') {
-            process.kill(args[0]);
+        if (args[0] === 'quit') {
+            child.stdin.write(`quit\n`);
         }
 
         //         if (args[0] === 'start') {

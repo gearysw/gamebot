@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 module.exports = {
     name: 'help',
     description: 'Help!',
-    execute: async (bot, message, args) => {
+    execute: async (bot, message, args, child) => {
         const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch', 'bf3'];
 
         const embed = new Discord.RichEmbed()

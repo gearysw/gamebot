@@ -1,4 +1,4 @@
-const { prefix, token } = require('./config.json');
+const { prefix, token, CSGO_PATH } = require('./config.json');
 const Discord = require('discord.js');
 const fs = require('fs');
 const bot = new Discord.Client({ disableEveryone: true });
@@ -12,6 +12,13 @@ for (const f of commandFiles) {
     const command = require(`./cmds/${f}`);
     bot.commands.set(command.name, command);
 }
+
+const child = spawn('sh');
+child.stdout.on('data', data => { console.log(`stdout: ${data}`) });
+child.stderr.on('data', data => { console.log(`stderr: ${data}`) });
+child.stdin.write(`cd ${CSGO_PATH}\n`);
+child.on('close', code => { console.log(`child process closed with code ${code}`) });
+child.on('exit', code => { console.log(`child process exited with code ${code}`) });
 
 bot.login(token);
 
@@ -35,7 +42,7 @@ bot.on('message', async (message) => {
             if (!command) return;
             if (command.args && !args.length) return message.channel.send(`You need to provide arguments for that command. Type \`${prefix}help ${command.name}\` to see how to use the command.`);
 
-            command.execute(bot, message, args);
+            command.execute(bot, message, args, child);
         } catch (error) {
             console.error(error);
             message.channel.send('Helpful error message');
