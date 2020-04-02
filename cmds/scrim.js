@@ -86,12 +86,21 @@ module.exports = {
             });
         }
 
-        if (args[0] === 'test') {
-            child.stdin.write(`./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map ${args[1]} +maxplayers 12\n`);
-        }
+        // if (args[0] === 'test') {
+        //     child.stdin.write(`./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map ${args[1]} +maxplayers 12\n`);
+        // }
 
-        if (args[0] === 'quit') {
+        if (args[0] === 'end') {
             child.stdin.write(`quit\n`);
+            message.channel.send('Server shutting down.');
+            const roster = {
+                "team1": {},
+                "team2": {}
+            };
+            fs.writeFile('./games/scrim.json', JSON.stringify(roster, null, '\t'), err => {
+                if (err) return console.error(err);
+                message.channel.send('Scrim roster cleared.');
+            });
         }
 
         if (args[0] === 'start') {
@@ -144,7 +153,7 @@ module.exports = {
                     const msg = await message.channel.send('Server spinning up...');
                     bot.setTimeout(() => {
                         msg.edit(`\`${connect}\``);
-                    }, 15000);
+                    }, 20000);
                 });
             });
             // console.log(args[1]);
