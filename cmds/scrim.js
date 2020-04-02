@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { csgopath } = require('../config.json');
