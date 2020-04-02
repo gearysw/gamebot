@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { exec } = require('child_process');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { csgopath } = require('../config.json');
@@ -88,7 +88,7 @@ module.exports = {
         }
 
         if (args[0] === 'test') {
-            const child = spawn('sh run_server.sh');
+            const child = exec('sh run_server.sh');
             console.log(child.pid);
 
             child.stdout.on('data', data => {
