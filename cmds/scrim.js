@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { csgopath } = require('../config.json');
@@ -88,8 +88,8 @@ module.exports = {
         }
 
         if (args[0] === 'test') {
-            // const child = spawn('/home/steam/csgo-ds/srcds_run', ['-game', 'csgo', '-tickrate', '128', '-net_port_try', '1', '-usercon', '+game_type', '0', '+game_mode', '1', '+map', 'de_overpass']);
-            const child = exec('sh run_server.sh');
+            const child = spawn('/home/steam/csgo-ds/srcds_run', ['-game csgo', '-tickrate 128', '-net_port_try 1', '-usercon', '+game_type 0', '+game_mode 1', `+map ${args[1]}`]);
+            // const child = exec('sh run_server.sh');
             message.channel.send(`process pid: ${child.pid}`);
             console.log(child.pid);
 
