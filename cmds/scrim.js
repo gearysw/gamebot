@@ -107,7 +107,7 @@ module.exports = {
         }
 
         if (args[0] === 'testkill') {
-            process.kill(args[0]);
+            process.env.kill(args[0]);
         }
 
         //         if (args[0] === 'start') {
