@@ -1,4 +1,4 @@
-const { spawn } = require('child_process');
+const { exec } = require('child_process');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { csgopath } = require('../config.json');
@@ -88,7 +88,7 @@ module.exports = {
         }
 
         if (args[0] === 'test') {
-            const child = spawn('/home/steam/csgo-ds/srcds_run -game csgo -tickrate 128 +sv_setsteamaccount CFA746676095683147DB83EF35BFD586 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map de_cbble +maxplayers 12');
+            const child = exec('sh run_server.sh');
 
             child.stdout.on('data', data => {
                 console.log(`stdout: ${data}`);
