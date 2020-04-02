@@ -138,7 +138,7 @@ module.exports = {
             }
         }`;
 
-                fs.writeFile(`${CSGO_PATH}/csgo/addons/sourcemod/configs/get5/scrim_template.cfg`, config, err => {
+                fs.writeFile(`${CSGO_PATH}/csgo/addons/sourcemod/configs/get5/scrim_template.cfg`, config, async err => {
                     if (err) return console.error(err);
                     child.stdin.write(`./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map ${args[1]} +maxplayers 12\n`);
                     const msg = await message.channel.send('Server spinning up...');
