@@ -17,7 +17,7 @@ module.exports = {
             .addField('!scrim start [map name]', 'Spin up the server on the specified map (ex. de_dust2)')
             .addField('!scrim clear', 'Clear the roster', true)
             .addField('!scrim end', 'Kill the server', true)
-            .addField('!steamid [Steam ID]', 'Add your Steam ID to the database with the format `STEAM_X:Y:Z`');
+            .addField('!steamid [Steam ID]', 'Add your Steam ID to the database with the format `!steamid STEAM_X:Y:Z`');
 
         message.channel.send(embed);
     }

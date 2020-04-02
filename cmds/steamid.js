@@ -5,7 +5,7 @@ module.exports = {
     description: 'Add your steamID to the database',
     execute: async (bot, message, args, child) => {
         const regex = /^STEAM_[0-5]:[01]:\d+$/;
-        if (!args.length) return message.channel.send('Provide your Steam ID in the format of `STEAM_X:Y:Z`, where X, Y, Z are integers');
+        if (!args.length) return message.channel.send('Provide your Steam ID in the format of `!steamid STEAM_X:Y:Z`, where X, Y, Z are integers. Use a tool such as https://steamidfinder.com/lookup/ to find your Steam ID.');
 
         if (args[0].toUpperCase().match(regex)) {
             fs.readFile('./games/steamid.json', (err, content) => {

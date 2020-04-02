@@ -104,11 +104,11 @@ module.exports = {
         }
 
         if (args[0] === 'start') {
-            if (!args[1]) return message.channel.send('Specify a map to play in.');
+            if (!args[1]) return message.channel.send('Specify a map to play in. PLEASE PLEASE PLEASE write the map name correctly');
             fs.readFile('./games/scrim.json', (err, content) => {
                 if (err) return console.error(err);
                 const roster = JSON.parse(content);
-                // if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
+                if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
 
                 const config = `
         "Match"
