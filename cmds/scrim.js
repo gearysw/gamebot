@@ -88,20 +88,20 @@ module.exports = {
         }
 
         if (args[0] === 'test') {
-            const child = exec('sh run_server.sh');
+            const child = spawn('/home/steam/csgo-ds/srcds_run', ['-game', 'csgo', '-tickrate', '128', '-net_port_try', '1', '-usercon', '+game_type', '0', '+game_mode', '1', '+map', 'de_overpass']);
             console.log(child.pid);
 
-            // child.stdout.on('data', data => {
-            //     console.log(`stdout: ${data}`);
-            // });
+            child.stdout.on('data', data => {
+                console.log(`stdout: ${data}`);
+            });
 
-            // child.stderr.on('data', data => {
-            //     console.log(`stderr: ${data}`);
-            // });
+            child.stderr.on('data', data => {
+                console.log(`stderr: ${data}`);
+            });
 
-            // child.on('close', code => {
-            //     console.log(`child process exited with code ${code}`);
-            // });
+            child.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+            });
         }
 
         if (args[0] === 'testkill') {
