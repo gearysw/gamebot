@@ -19,7 +19,7 @@ module.exports = {
                 if (err) return console.error(err);
                 let gamers = JSON.parse(content);
 
-                const embed = new Discord.RichEmbed()
+                const embed = new Discord.MessageEmbed()
                     .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));
@@ -41,7 +41,7 @@ module.exports = {
                     if (err) return console.error(err);
                 });
 
-                const embed = new Discord.RichEmbed()
+                const embed = new Discord.MessageEmbed()
                     .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));
@@ -63,7 +63,7 @@ module.exports = {
                     if (err) console.error(err);
                 });
 
-                const embed = new Discord.RichEmbed()
+                const embed = new Discord.MessageEmbed()
                     .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
                     .setColor('#ff5555')
                     .setDescription(Object.values(gamers).join('\n'));

@@ -12,7 +12,7 @@ module.exports = {
                 if (err) return console.error(err);
                 let steamid = JSON.parse(content);
 
-                if (Object.keys(steamid).indexOf(message.author.id) > -1) return message.channel.send('You already stored your Steam ID.');
+                // if (Object.keys(steamid).indexOf(message.author.id) > -1) return message.channel.send('You already stored your Steam ID.');
                 steamid[message.author.id] = args[0].toUpperCase();
 
                 fs.writeFile('./games/steamid.json', JSON.stringify(steamid, null, '\t'), err => {

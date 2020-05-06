@@ -16,6 +16,7 @@ for (const f of commandFiles) {
 const child = spawn('sh');
 child.stdout.on('data', data => { console.log(`stdout: ${data}`) });
 child.stderr.on('data', data => { console.log(`stderr: ${data}`) });
+child.on('error', err => { console.log(`child error: ${err}`) });
 child.stdin.write(`cd ${CSGO_PATH}\n`);
 child.on('close', code => { console.log(`child process closed with code ${code}`) });
 child.on('exit', code => { console.log(`child process exited with code ${code}`) });

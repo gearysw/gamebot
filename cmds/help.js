@@ -6,7 +6,7 @@ module.exports = {
     execute: async (bot, message, args, child) => {
         const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch', 'bf3'];
 
-        const embed = new Discord.RichEmbed()
+        const embed = new Discord.MessageEmbed()
             .setTitle('Game Bot commands')
             .setColor('#ff5555')
             .addField('!game [name of game] in', 'Add yourself to the roster', true)

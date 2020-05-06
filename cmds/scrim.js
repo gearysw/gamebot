@@ -14,15 +14,16 @@ module.exports = {
                 let team2 = [];
 
                 for (const i of Object.keys(roster.team1)) {
-                    const name = (!bot.guilds.first().members.get(i).nickname) ? bot.guilds.first().members.get(i).user.username : bot.guilds.first().members.get(i).nickname;
+                    // if (roster.)
+                    const name = (!bot.guilds.cache.first().members.cache.get(i).nickname) ? bot.guilds.cache.first().members.cache.get(i).user.username : bot.guilds.cache.first().members.cache.get(i).nickname;
                     team1.push(name);
                 }
                 for (const i of Object.keys(roster.team2)) {
-                    const name = (!bot.guilds.first().members.get(i).nickname) ? bot.guilds.first().members.get(i).user.username : bot.guilds.first().members.get(i).nickname;
+                    const name = (!bot.guilds.cache.first().members.cache.get(i).nickname) ? bot.guilds.cache.first().members.cache.get(i).user.username : bot.guilds.cache.first().members.cache.get(i).nickname;
                     team2.push(name);
                 }
 
-                const embed = new Discord.RichEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
+                const embed = new Discord.MessageEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
                     .addField('Team 1', team1.join('\n') || 'empty', true)
                     .addField('Team 2', team2.join('\n') || 'empty', true);
 
@@ -58,15 +59,15 @@ module.exports = {
                         let team2 = [];
 
                         for (const t of Object.keys(roster.team1)) {
-                            const name = (!bot.guilds.first().members.get(t).nickname) ? bot.guilds.first().members.get(t).user.username : bot.guilds.first().members.get(t).nickname;
+                            const name = (!bot.guilds.cache.first().members.cache.get(t).nickname) ? bot.guilds.cache.first().members.cache.get(t).user.username : bot.guilds.cache.first().members.cache.get(t).nickname;
                             team1.push(name);
                         }
                         for (const t of Object.keys(roster.team2)) {
-                            const name = (!bot.guilds.first().members.get(t).nickname) ? bot.guilds.first().members.get(t).user.username : bot.guilds.first().members.get(t).nickname;
+                            const name = (!bot.guilds.cache.first().members.cache.get(t).nickname) ? bot.guilds.cache.first().members.cache.get(t).user.username : bot.guilds.cache.first().members.cache.get(t).nickname;
                             team2.push(name);
                         }
 
-                        const embed = new Discord.RichEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
+                        const embed = new Discord.MessageEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
                             .addField('Team 1', team1.join('\n') || 'empty', true)
                             .addField('Team 2', team2.join('\n') || 'empty', true);
                         message.channel.send(embed);
