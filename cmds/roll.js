@@ -8,16 +8,17 @@ module.exports = {
     usage: 'XdY',
     args: true,
     execute: async (bot, message, args, child) => {
-        if (args[0].match(/\dd\d/)) {
+        if (args[0].match(/^[1-9]\d*d[1-9]\d*$/)) {
             let numDice = parseInt(args[0].split('d')[0]);
             let diceType = parseInt(args[0].split('d')[1]);
             let min = Math.ceil(numDice);
             let max = Math.floor(numDice * diceType);
             let num = Math.floor(Math.random() * (max - min + 1) + min);
+            
             if (num === 69) {
                 message.channel.send(`${num}...Nice`);
             } else {
-                if (message.author.id === '327778816359399424' && (num > 1000 || num === Infinity)) {
+                if (message.author.id === '327778816359399424' && (num > 10000 || num === Infinity)) {
                     message.channel.send('Stop it, Nils.');
                     return;
                 }
