@@ -17,6 +17,10 @@ module.exports = {
             if (num === 69) {
                 message.channel.send(`${num}...Nice`);
             } else {
+                if (message.author.id === '327778816359399424' && (num > 1000 || num === Infinity)) {
+                    message.channel.send('Stop it, Nils.');
+                    return;
+                }
                 message.channel.send(num);
             }
         } else {

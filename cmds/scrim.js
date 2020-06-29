@@ -68,8 +68,8 @@ module.exports = {
                         }
 
                         const embed = new Discord.MessageEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
-                            .addField('Team 1', team1.join('\n') || 'empty', true)
-                            .addField('Team 2', team2.join('\n') || 'empty', true);
+                            .addField(`Team 1 - ${team1.length}`, team1.join('\n') || 'empty', true)
+                            .addField(`Team 2 - ${team2.length}`, team2.join('\n') || 'empty', true);
                         message.channel.send(embed);
                     });
                 });
