@@ -1,10 +1,12 @@
 const Discord = require('discord.js');
+const fs = require('fs');
 
 module.exports = {
     name: 'help',
     description: 'Help!',
     execute: async (bot, message, args, child) => {
-        const games = ['csgo', 'csgo10', 'squad', 'forza', 'civilisation', 'rocketleague', 'tabletop', 'apex', 'wreckfest', 'beatsaber', 'vr', 'factorio', 'minecraft', 'borderlands', 'halo', 'tarkov', 'siege', 'farming', 'overwatch', 'bf3'];
+        const gamesObject = await fs.promises.readFile('./games.json', 'utf-8');
+        const games = JSON.parse(gamesObject).games;
 
         const embed = new Discord.MessageEmbed()
             .setTitle('Game Bot commands')
@@ -12,6 +14,9 @@ module.exports = {
             .addField('!game [name of game] in', 'Add yourself to the roster', true)
             .addField('!game [name of game] out', 'Remove yourself from the roster', true)
             .addField('!game [name of game] clear', 'Clear the roster', true)
+            .addField('!game list', 'Show the list of games on file', true)
+            .addField('!game add [name of game]', 'Add a game to the list', true)
+            .addField('!game remove [name of game]', 'Remove a game from the list', true)
             .addField('List of games', games.sort().join(', '))
             .addField('!scrim [team1 or team2]', 'Add yourself to the respective team')
             .addField('!scrim start [map name]', 'Spin up the server on the specified map (ex. de_dust2)')
