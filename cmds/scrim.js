@@ -111,43 +111,42 @@ module.exports = {
                 const roster = JSON.parse(content);
                 if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
 
-                const config = 
-`
-"Match"
-{
-    "scrim" "1"
-    "side_type" "always_knife"
-    "players_per_team"  "5"
-    "num_maps"  "1"
-    "skip_veto" "1"
-
-    "team1"
-    {
-        "name"  "Home"
-        "players"
-        {
-            "${Object.values(roster.team1)[0]}"   ""
-            "${Object.values(roster.team1)[1] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[2] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[3] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[4] || "\"STEAM_1:1:.....\""}"   ""
-        }
-    }
-
-    "cvars"
-    {
-        "get5_live_countdown_time"  "5"
-        "mp_halftime_duration"  "15"
-        "mp_match_can_clinch"   "1"
-        "mp_overtime_enable"    "1"
-        "mp_match_restart_delay"    "15"
-        "get5_max_pause_time"   "180"
-        "get5_check_auths"  "1"
-        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
-        "get5_kick_when_no_match_loaded"    "0"
-        "get5_print_damage" "1"
-    }
-}`.trim();
+                const config = `
+                "Match"
+                {
+                    "scrim" "1"
+                    "side_type" "always_knife"
+                    "players_per_team"  "5"
+                    "num_maps"  "1"
+                    "skip_veto" "1"
+                
+                    "team1"
+                    {
+                        "name"  "Home"
+                        "players"
+                        {
+                            "${Object.values(roster.team1)[0]}"   ""
+                            "${Object.values(roster.team1)[1] || "\"STEAM_1:1:.....\""}"   ""
+                            "${Object.values(roster.team1)[2] || "\"STEAM_1:1:.....\""}"   ""
+                            "${Object.values(roster.team1)[3] || "\"STEAM_1:1:.....\""}"   ""
+                            "${Object.values(roster.team1)[4] || "\"STEAM_1:1:.....\""}"   ""
+                        }
+                    }
+                
+                    "cvars"
+                    {
+                        "get5_live_countdown_time"  "5"
+                        "mp_halftime_duration"  "15"
+                        "mp_match_can_clinch"   "1"
+                        "mp_overtime_enable"    "1"
+                        "mp_match_restart_delay"    "15"
+                        "get5_max_pause_time"   "180"
+                        "get5_check_auths"  "1"
+                        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
+                        "get5_kick_when_no_match_loaded"    "0"
+                        "get5_print_damage" "1"
+                    }
+                }`;
 
                 fs.writeFile(`${CSGO_PATH}/csgo/addons/sourcemod/configs/get5/scrim_template.cfg`, config, async err => {
                     if (err) return console.error(err);
