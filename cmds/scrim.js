@@ -110,6 +110,7 @@ module.exports = {
                 if (err) return console.error(err);
                 const roster = JSON.parse(content);
                 if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
+                if (!Object.keys(roster.team1).includes(message.author.id) && !Object.keys(roster.team2).includes(message.author.id)) return message.channel.send('You are not on the scrim roster. Sod off.');
 
                 const config = `
                 "Match"
