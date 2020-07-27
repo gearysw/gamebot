@@ -24,8 +24,8 @@ module.exports = {
                 }
 
                 const embed = new Discord.MessageEmbed().setTitle('5v5 Scrim Roster').setColor('#ff5555')
-                    .addField('Team 1', team1.join('\n') || 'empty', true)
-                    .addField('Team 2', team2.join('\n') || 'empty', true);
+                    .addField(`Team 1 - ${team1.length}`, team1.join('\n') || 'empty', true)
+                    .addField(`Team 2 - ${team2.length}`, team2.join('\n') || 'empty', true);
 
                 message.channel.send(embed);
             });
@@ -106,6 +106,16 @@ module.exports = {
 
         if (args[0] === 'start') {
             if (!args[1]) return message.channel.send('Specify a map to play in. PLEASE PLEASE PLEASE write the map name correctly');
+            
+            // check for correct map name
+            const mapFiles = (await fs.promises.readdir(`${CSGO_PATH}/csgo/maps`)).filter(file => file.endsWith('.bsp'));
+            const maps = [];
+            for (const m of mapFiles) {
+                const map = m.slice(0, -4);
+                maps.push(map);
+            }
+            if (!maps.includes(args[1])) return message.channel.send('No map found with that name');
+
             fs.readFile('./games/scrim.json', (err, content) => {
                 if (err) return console.error(err);
                 const roster = JSON.parse(content);
@@ -162,6 +172,14 @@ module.exports = {
         }
         if (args[0] === 'test') {
             if (message.author.id != '197530293597372416') return;
+            
+            const mapFiles = (await fs.promises.readdir(`${CSGO_PATH}/csgo/maps`)).filter(file => file.endsWith('.bsp'));
+            const maps = [];
+            for (const m of mapFiles) {
+                const map = m.slice(0, -4);
+                maps.push(map);
+            }
+            if (!maps.includes(args[1])) return message.channel.send('No map found with that name');
             // fs.readFile('./games/steamid.json', (err, content) => {
             //     if (err) return console.error(err);
             //     const steamIDs = JSOn.parse(content);
