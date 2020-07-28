@@ -200,7 +200,7 @@ module.exports = {
         "players"
         {
             "STEAM_0:1:52265309"   ""
-            STEAM_1:1:....."   ""
+            "STEAM_1:1:....."   ""
             "STEAM_1:1:....."   ""
             "STEAM_1:1:....."   ""
             "STEAM_1:1:....."   ""
