@@ -185,42 +185,42 @@ module.exports = {
             //     const steamIDs = JSOn.parse(content);
 
             // });
-            const config = `
-            "Match"
-                {
-                    "scrim" "1"
-                    "side_type" "always_knife"
-                    "players_per_team"  "5"
-                    "num_maps"  "1"
-                    "skip_veto" "1"
-                
-                    "team1"
-                    {
-                        "name"  "Home"
-                        "players"
-                        {
-                            "STEAM_0:1:52265309"   ""
-                            "STEAM_1:1:....."   ""
-                            "STEAM_1:1:....."   ""
-                            "STEAM_1:1:....."   ""
-                            "STEAM_1:1:....."   ""
-                        }
-                    }
-                
-                    "cvars"
-                    {
-                        "get5_live_countdown_time"  "5"
-                        "mp_halftime_duration"  "15"
-                        "mp_match_can_clinch"   "1"
-                        "mp_overtime_enable"    "1"
-                        "mp_match_restart_delay"    "15"
-                        "get5_max_pause_time"   "180"
-                        "get5_check_auths"  "1"
-                        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
-                        "get5_kick_when_no_match_loaded"    "0"
-                        "get5_print_damage" "1"
-                    }
-                }`;
+            const config =
+                `"Match"
+{
+    "scrim" "1"
+    "side_type" "always_knife"
+    "players_per_team"  "5"
+    "num_maps"  "1"
+    "skip_veto" "1"
+
+    "team1"
+    {
+        "name"  "Home"
+        "players"
+        {
+            "STEAM_0:1:52265309"   ""
+            STEAM_1:1:....."   ""
+            "STEAM_1:1:....."   ""
+            "STEAM_1:1:....."   ""
+            "STEAM_1:1:....."   ""
+        }
+    }
+
+    "cvars"
+    {
+        "get5_live_countdown_time"  "5"
+        "mp_halftime_duration"  "15"
+        "mp_match_can_clinch"   "1"
+        "mp_overtime_enable"    "1"
+        "mp_match_restart_delay"    "15"
+        "get5_max_pause_time"   "180"
+        "get5_check_auths"  "1"
+        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
+        "get5_kick_when_no_match_loaded"    "0"
+        "get5_print_damage" "1"
+    }
+}`;
             fs.writeFile(`${CSGO_PATH}/csgo/addons/sourcemod/configs/get5/scrim_template.cfg`, config, async err => {
                 if (err) return console.error(err);
                 child.stdin.write(`./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map ${args[1]} +maxplayers 12\n`);
