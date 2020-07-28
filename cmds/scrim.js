@@ -153,7 +153,7 @@ module.exports = {
         "mp_match_restart_delay"    "15"
         "get5_max_pause_time"   "180"
         "get5_check_auths"  "1"
-        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}
+        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
         "get5_kick_when_no_match_loaded"    "0"
         "get5_print_damage" "1"
     }
