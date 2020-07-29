@@ -122,6 +122,7 @@ module.exports = {
                 if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
                 if (!Object.keys(roster.team1).includes(message.author.id) && !Object.keys(roster.team2).includes(message.author.id)) return message.channel.send('You are not on the scrim roster. Sod off.');
 
+                const rosterArray = Object.values(roster.team1);
                 const config =
                     `"Match"
 {
@@ -136,11 +137,11 @@ module.exports = {
         "name"  "Home"
         "players"
         {
-            "${Object.values(roster.team1)[0]}"   ""
-            "${Object.values(roster.team1)[1] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[2] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[3] || "\"STEAM_1:1:.....\""}"   ""
-            "${Object.values(roster.team1)[4] || "\"STEAM_1:1:.....\""}"   ""
+            "${rosterArray[0]}"   ""
+            "${rosterArray[1]}"   ""
+            "${rosterArray[2]}"   ""
+            "${rosterArray[3]}"   ""
+            "${rosterArray[4]}"   ""
         }
     }
 
@@ -228,6 +229,58 @@ module.exports = {
                 bot.setTimeout(() => {
                     msg.edit(`\`${connect}\``);
                 }, 20000);
+            });
+        }
+
+        if (args[0] === 'write') {
+            fs.readFile('./games/scrim.json', (err, content) => {
+                if (err) return console.error(err);
+                const roster = JSON.parse(content);
+                if (Object.values(roster.team1).length != 5 && Object.values(roster.team2).length != 5) return message.channel.send('Not enough players for a scrim.');
+                if (!Object.keys(roster.team1).includes(message.author.id) && !Object.keys(roster.team2).includes(message.author.id)) return message.channel.send('You are not on the scrim roster. Sod off.');
+
+                const rosterArray = Object.values(roster.team1);
+                const config =
+                    `"Match"
+{
+    "scrim" "1"
+    "side_type" "always_knife"
+    "players_per_team"  "5"
+    "num_maps"  "1"
+    "skip_veto" "1"
+
+    "team1"
+    {
+        "name"  "Home"
+        "players"
+        {
+            "${rosterArray[0]}"   ""
+            "${rosterArray[1]}"   ""
+            "${rosterArray[2]}"   ""
+            "${rosterArray[3]}"   ""
+            "${rosterArray[4]}"   ""
+        }
+    }
+
+    "cvars"
+    {
+        "get5_live_countdown_time"  "5"
+        "mp_halftime_duration"  "15"
+        "mp_match_can_clinch"   "1"
+        "mp_overtime_enable"    "1"
+        "mp_match_restart_delay"    "15"
+        "get5_max_pause_time"   "180"
+        "get5_check_auths"  "1"
+        "get5_demo_name_format" "ACRLscrim_{TIME}_{MAPNAME}"
+        "get5_kick_when_no_match_loaded"    "0"
+        "get5_print_damage" "1"
+    }
+}`;
+
+                fs.writeFile(`${CSGO_PATH}/csgo/addons/sourcemod/configs/get5/scrim_template.cfg`, config, async err => {
+                    if (err) return console.error(err);
+                    message.channel.send('Scrim roster written to server file. Tell Geary to run this command on the server `./srcds_run -game csgo -tickrate 128 -net_port_try 1 -console -usercon +game_type 0 +game_mode 1 +map [map name] +maxplayers 12`');
+                });
             });
         }
     }
