@@ -21,7 +21,7 @@ module.exports = {
                 if (!args[1]) return message.channel.send('What game?')
 
                 if (games.includes(args[1])) return message.channel.send(`${args[1]} is already on the list.`);
-                
+
                 games.push(args[1]);
 
                 const json = {
@@ -57,7 +57,7 @@ module.exports = {
 
             // if no args included, send help
             if (!games.includes(args[0])) {
-                bot.commands.get('help').execute(bot, message, args);
+                bot.commands.get('help').execute(bot, message, args, child);
             }
 
             // if only game is included in command, show the roster only
