@@ -23,7 +23,8 @@ module.exports = {
             .addField('!scrim clear', 'Clear the roster', true)
             .addField('!scrim end', 'Kill the server', true)
             .addField('!steamid [Steam ID]', 'Add your Steam ID to the database with the format `!steamid STEAM_X:Y:Z`')
-            .addField('!roll XdY', 'Roll X Y-sided dice');
+            .addField('!roll XdY', 'Roll X Y-sided dice')
+            .addField('!instants [search terms]', 'Search for instant sounds on myinstants.com');
 
         message.channel.send(embed);
     }
