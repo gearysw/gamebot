@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const { CSGO_PATH, connect } = require('../config.json');
+const { maps } = require('../games/maps.json');
 
 class Roster {
     constructor(players) {
@@ -149,13 +150,13 @@ module.exports = {
             if (!args[1]) return message.channel.send('Specify a map to play in. PLEASE PLEASE PLEASE write the map name correctly');
 
             // check for correct map name
-            const activeMaps = ['de_anubis', 'de_cache', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_mutiny', 'de_overpass', 'de_swamp', 'de_vertigo'];
+            // const activeMaps = ['de_anubis', 'de_cache', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_mutiny', 'de_overpass', 'de_swamp', 'de_vertigo'];
             let map;
             if (args[1] === 'random') {
-                map = activeMaps[Math.floor(Math.random() * activeMaps.length)];
+                map = maps[Math.floor(Math.random() * maps.length)];
                 message.channel.send(`Map selected: ${map}`);
             } else {
-                if (!activeMaps.includes(args[1])) return message.channel.send('Map not found or not in active duty');
+                if (!maps.includes(args[1])) return message.channel.send('Map not found or not in active duty');
                 map = args[1];
             }
 
@@ -201,13 +202,13 @@ module.exports = {
             //         msg.edit(`\`${connect}\``);
             //     }, 20000);
             // });
-            const activeMaps = ['de_anubis', 'de_cache', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_mutiny', 'de_overpass', 'de_swamp', 'de_vertigo'];
+            // const activeMaps = ['de_anubis', 'de_cache', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_mutiny', 'de_overpass', 'de_swamp', 'de_vertigo'];
             let map;
             if (args[1] === 'random') {
-                map = activeMaps[Math.floor(Math.random() * activeMaps.length)];
+                map = maps[Math.floor(Math.random() * maps.length)];
                 message.channel.send(`Map selected: ${map}`);
             } else {
-                if (!activeMaps.includes(args[1])) return message.channel.send('Map not found or not in active duty');
+                if (!maps.includes(args[1])) return message.channel.send('Map not found or not in active duty');
                 map = args[1];
             }
         }
