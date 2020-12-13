@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const fs = require('fs');
+const { expiration } = require('../config.json');
 
 module.exports = {
     name: 'game',
@@ -67,13 +68,19 @@ module.exports = {
                 }
                 fs.readFile(`./games/${args[0]}.json`, (err, content) => {
                     if (err) return console.error(err);
-                    let gamers = JSON.parse(content);
+                    let object = JSON.parse(content);
 
-                    const embed = new Discord.MessageEmbed()
-                        .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
-                        .setColor('#ff5555')
-                        .setDescription(Object.values(gamers).join('\n'));
-                    message.channel.send(embed);
+                    sendRosterEmbed(args[0], '', object, message.channel);
+                    // let gamers = [];
+                    // for (const prop in object) {
+                    //     gamers.push(`${object[prop].name} - expires in ${Math.ceil(Math.trunc((object[prop].expire - Date.now())/60000))} minutes`);
+                    // }
+
+                    // const embed = new Discord.MessageEmbed()
+                    //     .setTitle(`${args[0]} roster - ${gamers.length}`)
+                    //     .setColor('#ff5555')
+                    //     .setDescription(gamers.join('\n'));
+                    // message.channel.send(embed);
                 });
             }
 
@@ -86,18 +93,31 @@ module.exports = {
                     if (err) return console.error(err);
                     let gamers = JSON.parse(content);
 
-                    if (Object.keys(gamers).indexOf(message.author.id) > -1) return message.channel.send(`You're already in the ${args[0]} roster.`);
-                    gamers[message.author.id] = (!message.member.nickname) ? message.author.username : message.member.nickname;
+                    // if (Object.keys(gamers).indexOf(message.author.id) > -1) return message.channel.send(`You're already in the ${args[0]} roster.`);
+                    if (Object.keys(gamers).indexOf(message.author.id) > -1) { // refreshes the check in timer instead
+                        gamers[message.author.id]['expire'] = Date.now() + expiration;
+                        sendRosterEmbed(args[0], `You've updated your check in.`, gamers, message.channel);
+                        return;
+                    }
+                    gamers[message.author.id] = {
+                        name: (!message.member.nickname) ? message.author.username : message.member.nickname,
+                        expire: Date.now() + expiration
+                    };
 
                     fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
                         if (err) return console.error(err);
                     });
 
-                    const embed = new Discord.MessageEmbed()
-                        .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
-                        .setColor('#ff5555')
-                        .setDescription(Object.values(gamers).join('\n'));
-                    message.channel.send(`You're now on the ${args[0]} roster.`, { embed: embed });
+                    sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, message.channel);
+                    // let names = [];
+                    // for (const prop in gamers) {
+                    //     names.push(`${gamers[prop].name} - expires in ${Math.ceil(Math.trunc((gamers[prop].expire - Date.now())/60000))} minutes`);
+                    // }
+                    // const embed = new Discord.MessageEmbed()
+                    //     .setTitle(`${args[0]} roster - ${names.length}`)
+                    //     .setColor('#ff5555')
+                    //     .setDescription(names.join('\n'));
+                    // message.channel.send(`You're now on the ${args[0]} roster.`, { embed: embed });
                 });
             }
 
@@ -117,11 +137,17 @@ module.exports = {
                         if (err) console.error(err);
                     });
 
-                    const embed = new Discord.MessageEmbed()
-                        .setTitle(`${args[0]} roster - ${Object.values(gamers).length}`)
-                        .setColor('#ff5555')
-                        .setDescription(Object.values(gamers).join('\n'));
-                    message.channel.send(`You've abandoned your friends.`, { embed: embed });
+                    sendRosterEmbed(args[0], `You've abandoned your friends.`, gamers, message.channel);
+                    // let names = [];
+                    // for (const prop in gamers) {
+                    //     names.push(`${gamers[prop].name} - expires in ${Math.ceil(Math.trunc((gamers[prop].expire - Date.now())/60000))} minutes`);
+                    // }
+
+                    // const embed = new Discord.MessageEmbed()
+                    //     .setTitle(`${args[0]} roster - ${names.length}`)
+                    //     .setColor('#ff5555')
+                    //     .setDescription(names.join('\n'));
+                    // message.channel.send(`You've abandoned your friends.`, { embed: embed });
                 });
             }
 
@@ -137,4 +163,28 @@ module.exports = {
         }
 
     }
+}
+/**
+ * 
+ * @param {string} game Game being checked into
+ * @param {string} remark Message for the bot to send, if empty put '' (empty string)
+ * @param {Object} roster Roster object
+ * @param {Object} channel message.channel
+ */
+async function sendRosterEmbed(game, remark, roster, channel) {
+    let gamers = []
+    // if (Object.keys(roster) === 0) {
+    //     channel.send({ embed: new Discord.MessageEmbed().setTitle(`${game} roster - 0`).setColor('#ff5555') });
+    //     return
+    // }
+    for (const prop in roster) {
+        gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minutes`)
+    }
+
+    const embed = new Discord.MessageEmbed()
+        .setTitle(`${game} roster - ${gamers.length}`)
+        .setColor('#ff5555')
+        .setDescription(gamers.join('\n'));
+
+    channel.send(remark, { embed: embed });
 }

@@ -3,7 +3,12 @@ const fs = require('fs');
 const { CSGO_PATH, connect } = require('../config.json');
 const { maps } = require('../games/maps.json');
 
+/** Constructs a roster to be used in a scrim */
 class Roster {
+    /**
+     * 
+     * @param {string[]} players Array of string, where each string is a Steam ID
+     */
     constructor(players) {
         this.player1 = players[0];
         this.player2 = players[1];

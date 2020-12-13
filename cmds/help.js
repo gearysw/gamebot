@@ -11,6 +11,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
             .setTitle('Game Bot commands')
             .setColor('#ff5555')
+            .setDescription('Scrim functionality currently disabled')
             .addField('!game [name of game] in', 'Add yourself to the roster', true)
             .addField('!game [name of game] out', 'Remove yourself from the roster', true)
             .addField('!game [name of game] clear', 'Clear the roster', true)
