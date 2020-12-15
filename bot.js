@@ -26,7 +26,7 @@ bot.login(token);
 
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user.username}`);
-    bot.setInterval(async () => {
+    setInterval(async () => {
         const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
         const games = JSON.parse(gamesObj).games;
 

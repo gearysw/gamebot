@@ -1,0 +1,7 @@
+{
+    "prefix": "!",
+    "token": "YOUR_TOKEN_HERE",
+    "CSGO_PATH": "PATH_TO_CSGO_SERVER",
+    "connect": "CONNECT_CONSOLE_COMMAND",
+    "expiration": 4500000
+}
