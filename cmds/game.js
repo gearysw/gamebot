@@ -71,21 +71,15 @@ module.exports = {
                     let object = JSON.parse(content);
 
                     sendRosterEmbed(args[0], '', object, message.channel);
-                    // let gamers = [];
-                    // for (const prop in object) {
-                    //     gamers.push(`${object[prop].name} - expires in ${Math.ceil(Math.trunc((object[prop].expire - Date.now())/60000))} minutes`);
-                    // }
-
-                    // const embed = new Discord.MessageEmbed()
-                    //     .setTitle(`${args[0]} roster - ${gamers.length}`)
-                    //     .setColor('#ff5555')
-                    //     .setDescription(gamers.join('\n'));
-                    // message.channel.send(embed);
                 });
             }
 
             // add message author to roster of specified game
             if (games.includes(args[0]) && args[1] === 'in') {
+                // console.log(parseInt(args[2]));
+                const expirationLength = (isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
+                // console.log(expirationLength);
+
                 if (!fs.existsSync(`./games/${args[0]}.json`)) {
                     fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
                 }
@@ -93,15 +87,18 @@ module.exports = {
                     if (err) return console.error(err);
                     let gamers = JSON.parse(content);
 
-                    // if (Object.keys(gamers).indexOf(message.author.id) > -1) return message.channel.send(`You're already in the ${args[0]} roster.`);
                     if (Object.keys(gamers).indexOf(message.author.id) > -1) { // refreshes the check in timer instead
-                        gamers[message.author.id]['expire'] = Date.now() + expiration;
+                        gamers[message.author.id]['expire'] = Date.now() + expirationLength;
                         sendRosterEmbed(args[0], `You've updated your check in.`, gamers, message.channel);
+
+                        fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
+                            if (err) return console.error(err);
+                        });
                         return;
                     }
                     gamers[message.author.id] = {
                         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
-                        expire: Date.now() + expiration
+                        expire: Date.now() + expirationLength
                     };
 
                     fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
@@ -109,15 +106,6 @@ module.exports = {
                     });
 
                     sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, message.channel);
-                    // let names = [];
-                    // for (const prop in gamers) {
-                    //     names.push(`${gamers[prop].name} - expires in ${Math.ceil(Math.trunc((gamers[prop].expire - Date.now())/60000))} minutes`);
-                    // }
-                    // const embed = new Discord.MessageEmbed()
-                    //     .setTitle(`${args[0]} roster - ${names.length}`)
-                    //     .setColor('#ff5555')
-                    //     .setDescription(names.join('\n'));
-                    // message.channel.send(`You're now on the ${args[0]} roster.`, { embed: embed });
                 });
             }
 
@@ -138,16 +126,6 @@ module.exports = {
                     });
 
                     sendRosterEmbed(args[0], `You've abandoned your friends.`, gamers, message.channel);
-                    // let names = [];
-                    // for (const prop in gamers) {
-                    //     names.push(`${gamers[prop].name} - expires in ${Math.ceil(Math.trunc((gamers[prop].expire - Date.now())/60000))} minutes`);
-                    // }
-
-                    // const embed = new Discord.MessageEmbed()
-                    //     .setTitle(`${args[0]} roster - ${names.length}`)
-                    //     .setColor('#ff5555')
-                    //     .setDescription(names.join('\n'));
-                    // message.channel.send(`You've abandoned your friends.`, { embed: embed });
                 });
             }
 
