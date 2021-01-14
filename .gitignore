@@ -109,3 +109,4 @@ gamers.json
 games/
 run_server.sh
 games.json
+ecosystem.config.js
