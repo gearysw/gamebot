@@ -1,3 +1,4 @@
+const { memory } = require('console');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { expiration } = require('../config.json');
@@ -76,43 +77,45 @@ module.exports = {
 
             // add message author to roster of specified game
             if (games.includes(args[0]) && args[1] === 'in') {
-                // console.log(parseInt(args[2]));
-                const expirationLength = (isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
-                // console.log(expirationLength);
+                const name = (!message.member.nickname) ? message.author.username : message.member.nickname;
+                gameIn(message.author.id, name, message.channel, args);
+                // // console.log(parseInt(args[2]));
+                // const expirationLength = (isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
+                // // console.log(expirationLength);
 
-                if (!fs.existsSync(`./games/${args[0]}.json`)) {
-                    fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
-                }
-                fs.readFile(`./games/${args[0]}.json`, (err, content) => {
-                    if (err) return console.error(err);
-                    let gamers = JSON.parse(content);
+                // if (!fs.existsSync(`./games/${args[0]}.json`)) {
+                //     fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
+                // }
+                // fs.readFile(`./games/${args[0]}.json`, (err, content) => {
+                //     if (err) return console.error(err);
+                //     let gamers = JSON.parse(content);
 
-                    if (Object.keys(gamers).indexOf(message.author.id) > -1) { // refreshes the check in timer instead
-                        gamers[message.author.id]['expire'] = Date.now() + expirationLength;
-                        sendRosterEmbed(args[0], `You've updated your check in.`, gamers, message.channel);
+                //     if (Object.keys(gamers).indexOf(message.author.id) > -1) { // refreshes the check in timer instead
+                //         gamers[message.author.id]['expire'] = Date.now() + expirationLength;
+                //         sendRosterEmbed(args[0], `You've updated your check in.`, gamers, message.channel);
 
-                        fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                            if (err) return console.error(err);
-                        });
-                        return;
-                    }
-                    gamers[message.author.id] = {
-                        name: (!message.member.nickname) ? message.author.username : message.member.nickname,
-                        expire: Date.now() + expirationLength
-                    };
+                //         fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
+                //             if (err) return console.error(err);
+                //         });
+                //         return;
+                //     }
+                //     gamers[message.author.id] = {
+                //         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
+                //         expire: Date.now() + expirationLength
+                //     };
 
-                    fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                        if (err) return console.error(err);
-                    });
+                //     fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
+                //         if (err) return console.error(err);
+                //     });
 
-                    sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, message.channel);
-                });
+                //     sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, message.channel);
+                // });
             }
 
             // remove message author from roster of specified game
             if (games.includes(args[0]) && args[1] === 'out') {
                 if (!fs.existsSync(`./games/${args[0]}.json`)) {
-                    fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}))
+                    fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
                 }
                 fs.readFile(`./games/${args[0]}.json`, (err, content) => {
                     if (err) return console.error(err);
@@ -129,6 +132,33 @@ module.exports = {
                 });
             }
 
+            if (games.includes(args[0]) && args[1] === 'reserve') {
+                if (!fs.existsSync(`./games/reserves.json`)) {
+                    fs.writeFileSync(`./games/reserves.json`, JSON.stringify({}));
+                }
+                if (!args[2] || isNaN(parseInt(args[2]))) return message.channel.send('When do you want to game in?');
+                
+                const time = parseInt(args[2]) * 60000;
+                //* include userID, name, channel, args
+                fs.readFile(`./games/reserves.json`, (err, content) => {
+                    if (err) return console.error(err);
+                    let reserves = JSON.parse(content);
+
+                    reserves[message.author.id] = {
+                        id: message.author.id,
+                        time: Date.now() + time,
+                        name: (!message.member.nickname) ? message.author.username : message.member.nickname,
+                        channel: message.channel.id,
+                        args: [args[0], 'in']
+                    }
+
+                    fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
+                        if (err) return console.error(err);
+                        message.channel.send(`You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minutes.`);
+                    });
+                });
+            }
+
             // clear the roster of specified game
             if (games.includes(args[0]) && args[1] === 'clear') {
                 fs.writeFile(`./games/${args[0]}.json`, JSON.stringify({}), err => {
@@ -139,7 +169,9 @@ module.exports = {
         } catch (error) {
             console.error(error);
         }
-
+    },
+    checkIn: async (id, name, channel, args) => {
+        gameIn(id, name, channel, args);
     }
 }
 /**
@@ -151,10 +183,6 @@ module.exports = {
  */
 async function sendRosterEmbed(game, remark, roster, channel) {
     let gamers = []
-    // if (Object.keys(roster) === 0) {
-    //     channel.send({ embed: new Discord.MessageEmbed().setTitle(`${game} roster - 0`).setColor('#ff5555') });
-    //     return
-    // }
     for (const prop in roster) {
         gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minutes`)
     }
@@ -165,4 +193,42 @@ async function sendRosterEmbed(game, remark, roster, channel) {
         .setDescription(gamers.join('\n'));
 
     channel.send(remark, { embed: embed });
+}
+
+/**
+ * @param {String} discordID id of player
+ * @param {String} name name of player
+ * @param {String} channel channel id of message source 
+ * @param {String[]} args arguments
+ */
+async function gameIn(discordID, name, channel, args) {
+    const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
+
+    if (!fs.existsSync(`./games/${args[0]}.json`)) {
+        fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
+    }
+    fs.readFile(`./games/${args[0]}.json`, (err, content) => {
+        if (err) return console.error(err);
+        let gamers = JSON.parse(content);
+
+        if (Object.keys(gamers).indexOf(discordID) > -1) {
+            gamers[discordID]['expire'] = Date.now() + expirationLength;
+            sendRosterEmbed(args[0], `You've updated your check in.`, gamers, channel);
+
+            fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
+                if (err) return console.error(err);
+            });
+            return;
+        }
+        gamers[discordID] = {
+            name: name,
+            expire: Date.now() + expirationLength
+        };
+
+        fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
+            if (err) return console.error(err);
+        });
+
+        sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, channel);
+    });
 }

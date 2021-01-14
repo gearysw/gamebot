@@ -29,6 +29,8 @@ bot.on('ready', async () => {
     setInterval(async () => {
         const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
         const games = JSON.parse(gamesObj).games;
+        const reservesObj = await fs.promises.readFile(`./games/reserves.json`, 'utf-8');
+        let reserves = JSON.parse(reservesObj);
 
         for (const g of games) {
             if (!fs.existsSync(`./games/${g}.json`)) continue;
@@ -46,6 +48,17 @@ bot.on('ready', async () => {
                 });
             })
         }
+
+        for (const r in reserves) {
+            if (reserves[r].time < Date.now()) {
+                const channel = await bot.channels.cache.get(reserves[r].channel);
+                bot.commands.get('game').checkIn(reserves[r].id, reserves[r].name, channel, reserves[r].args);
+                delete reserves[r];
+            }
+        }
+        fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
+            if (err) console.error(err);
+        })
     }, 60000);
 });
 

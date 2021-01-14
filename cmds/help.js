@@ -14,6 +14,7 @@ module.exports = {
             .setDescription('Scrim functionality currently disabled. Arguments inside angle brackets <> denotes optional arguments.')
             .addField('!game [name of game] in <minutes>', 'Add yourself to the roster <optionally include how long you are in for>', true)
             .addField('!game [name of game] out', 'Remove yourself from the roster', true)
+            .addField('!game [name of game] reserve [minutes]', 'Add yourself to the roster in the given minutes')
             .addField('!game [name of game] clear', 'Clear the roster', true)
             .addField('!game list', 'Show the list of games on file', true)
             .addField('!game add [name of game]', 'Add a game to the list', true)
