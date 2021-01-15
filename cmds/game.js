@@ -154,7 +154,7 @@ module.exports = {
 
                     fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
                         if (err) return console.error(err);
-                        message.channel.send(`You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minutes.`);
+                        message.channel.send(`You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minute(s).`);
                     });
                 });
             }
@@ -171,7 +171,7 @@ module.exports = {
         }
     },
     checkIn: async (id, name, channel, args) => {
-        gameIn(id, name, channel, args);
+        gameIn(id, name, channel, args, `<@${id}> You're now on the ${args[0]} roster.`);
     }
 }
 /**
@@ -184,7 +184,7 @@ module.exports = {
 async function sendRosterEmbed(game, remark, roster, channel) {
     let gamers = []
     for (const prop in roster) {
-        gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minutes`)
+        gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
     }
 
     const embed = new Discord.MessageEmbed()
@@ -201,7 +201,7 @@ async function sendRosterEmbed(game, remark, roster, channel) {
  * @param {String} channel channel id of message source 
  * @param {String[]} args arguments
  */
-async function gameIn(discordID, name, channel, args) {
+async function gameIn(discordID, name, channel, args, remark = `You're now on the ${args[0]} roster.`) {
     const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
 
     if (!fs.existsSync(`./games/${args[0]}.json`)) {
@@ -229,6 +229,6 @@ async function gameIn(discordID, name, channel, args) {
             if (err) return console.error(err);
         });
 
-        sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, channel);
+        sendRosterEmbed(args[0], remark, gamers, channel);
     });
 }
