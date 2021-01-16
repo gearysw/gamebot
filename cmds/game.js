@@ -137,8 +137,8 @@ module.exports = {
                     fs.writeFileSync(`./games/reserves.json`, JSON.stringify({}));
                 }
                 if (!args[2] || isNaN(parseInt(args[2]))) return message.channel.send('When do you want to game in?');
-                
-                const time = parseInt(args[2]) * 60000;
+
+                const time = Math.abs(parseInt(args[2])) * 60000;
                 //* include userID, name, channel, args
                 fs.readFile(`./games/reserves.json`, (err, content) => {
                     if (err) return console.error(err);
