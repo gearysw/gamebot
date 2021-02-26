@@ -171,7 +171,7 @@ module.exports = {
         }
     },
     checkIn: async (id, name, channel, args) => {
-        gameIn(id, name, channel, args, `<@${id}> You're now on the ${args[0]} roster.`);
+        gameIn(id, name, channel, args, true);
     }
 }
 /**
@@ -181,7 +181,7 @@ module.exports = {
  * @param {Object} roster Roster object
  * @param {Object} channel message.channel
  */
-async function sendRosterEmbed(game, remark, roster, channel) {
+async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefined) {
     let gamers = []
     for (const prop in roster) {
         gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
@@ -192,7 +192,7 @@ async function sendRosterEmbed(game, remark, roster, channel) {
         .setColor('#ff5555')
         .setDescription(gamers.join('\n'));
 
-    channel.send(remark, { embed: embed });
+    channel.send(remark, { embed: embed, ...(mentionID && {reply: mentionID})});
 }
 
 /**
@@ -201,7 +201,7 @@ async function sendRosterEmbed(game, remark, roster, channel) {
  * @param {String} channel channel id of message source 
  * @param {String[]} args arguments
  */
-async function gameIn(discordID, name, channel, args, remark = `You're now on the ${args[0]} roster.`) {
+async function gameIn(discordID, name, channel, args, mention = false) {
     const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
 
     if (!fs.existsSync(`./games/${args[0]}.json`)) {
@@ -229,6 +229,7 @@ async function gameIn(discordID, name, channel, args, remark = `You're now on th
             if (err) return console.error(err);
         });
 
-        sendRosterEmbed(args[0], remark, gamers, channel);
+        const mentionID = (mention) ? discordID : undefined
+        sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, channel, mentionID);
     });
 }
