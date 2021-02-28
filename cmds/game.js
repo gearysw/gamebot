@@ -182,17 +182,30 @@ module.exports = {
  * @param {Object} channel message.channel
  */
 async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefined) {
-    let gamers = []
+    let gamers = [];
+    let reserves = [];
     for (const prop in roster) {
         gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
+    }
+
+    const readReserves = await fs.promises.readFile(`./games/reserves.json`);
+    const reservesList = JSON.parse(readReserves);
+
+    for (const p in reservesList) {
+        const reservedGame = reservesList[p].args[0];
+        if (reservedGame !== game) continue;
+
+        const minutesLeft = Math.ceil((reservesList[p].time - Date.now()) / 60000);
+        reserves.push(`${reservesList[p].name} in ${minutesLeft} minute(s)`);
     }
 
     const embed = new Discord.MessageEmbed()
         .setTitle(`${game} roster - ${gamers.length}`)
         .setColor('#ff5555')
-        .setDescription(gamers.join('\n'));
+        .setDescription(gamers.join('\n'))
+        .addField('reserves', reserves.join('\n') || 'none');
 
-    channel.send(remark, { embed: embed, ...(mentionID && {reply: mentionID})});
+    channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
 }
 
 /**
