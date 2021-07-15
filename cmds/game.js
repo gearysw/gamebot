@@ -2,6 +2,7 @@ const { memory } = require('console');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { expiration } = require('../config.json');
+const {v4: uuidv4} = require('uuid');
 
 module.exports = {
     name: 'game',
@@ -79,37 +80,6 @@ module.exports = {
             if (games.includes(args[0]) && args[1] === 'in') {
                 const name = (!message.member.nickname) ? message.author.username : message.member.nickname;
                 gameIn(message.author.id, name, message.channel, args);
-                // // console.log(parseInt(args[2]));
-                // const expirationLength = (isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
-                // // console.log(expirationLength);
-
-                // if (!fs.existsSync(`./games/${args[0]}.json`)) {
-                //     fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
-                // }
-                // fs.readFile(`./games/${args[0]}.json`, (err, content) => {
-                //     if (err) return console.error(err);
-                //     let gamers = JSON.parse(content);
-
-                //     if (Object.keys(gamers).indexOf(message.author.id) > -1) { // refreshes the check in timer instead
-                //         gamers[message.author.id]['expire'] = Date.now() + expirationLength;
-                //         sendRosterEmbed(args[0], `You've updated your check in.`, gamers, message.channel);
-
-                //         fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                //             if (err) return console.error(err);
-                //         });
-                //         return;
-                //     }
-                //     gamers[message.author.id] = {
-                //         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
-                //         expire: Date.now() + expirationLength
-                //     };
-
-                //     fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                //         if (err) return console.error(err);
-                //     });
-
-                //     sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, message.channel);
-                // });
             }
 
             // remove message author from roster of specified game
@@ -144,7 +114,7 @@ module.exports = {
                     if (err) return console.error(err);
                     let reserves = JSON.parse(content);
 
-                    reserves[message.author.id] = {
+                    reserves[uuidv4()] = {
                         id: message.author.id,
                         time: Date.now() + time,
                         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
@@ -216,6 +186,16 @@ async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefi
  */
 async function gameIn(discordID, name, channel, args, mention = false) {
     const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
+    const reservesJSON = await fs.promises.readFile('./games/reserves.json');
+    const reserves = JSON.parse(reservesJSON);
+
+    for (r in reserves) {
+        if (reserves[r].id === discordID) delete reserves[r];
+    }
+
+    fs.writeFile('./games/reserves.json', JSON.stringify(reserves, null, '\t'), err => {
+        if (err) return console.error(err);
+    });
 
     if (!fs.existsSync(`./games/${args[0]}.json`)) {
         fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));

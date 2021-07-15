@@ -53,13 +53,13 @@ class Roster {
 }`
     }
 }
-module.exports = {
-    name: 'scrim',
-    description: 'currently disabled',
-    execute: async (bot, message, args, child) => {
-        message.channel.send('Scrim function is currently disabled.');
-    }
-}
+// module.exports = {
+//     name: 'scrim',
+//     description: 'currently disabled',
+//     execute: async (bot, message, args, child) => {
+//         message.channel.send('Scrim function is currently disabled.');
+//     }
+// }
 // module.exports = {
 //     name: 'scrim',
 //     description: 'Assign yourself to a team then start a server to jump right in',
