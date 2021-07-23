@@ -2,7 +2,7 @@ const { memory } = require('console');
 const Discord = require('discord.js');
 const fs = require('fs');
 const { expiration } = require('../config.json');
-const {v4: uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
     name: 'game',
@@ -114,7 +114,16 @@ module.exports = {
                     if (err) return console.error(err);
                     let reserves = JSON.parse(content);
 
-                    reserves[uuidv4()] = {
+                    let selectObj = '';
+                    if (Object.keys(reserves).length > 0) {
+                        for (res in reserves) {
+                            if (reserves[res].id === message.author.id) {
+                                selectObj = res;
+                            } else selectObj = uuidv4();
+                        }
+                    } else selectObj = uuidv4();
+
+                    reserves[selectObj] = {
                         id: message.author.id,
                         time: Date.now() + time,
                         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
