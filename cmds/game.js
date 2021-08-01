@@ -1,5 +1,4 @@
-const { memory } = require('console');
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const { expiration } = require('../config.json');
 const { v4: uuidv4 } = require('uuid');
@@ -72,7 +71,7 @@ module.exports = {
                     if (err) return console.error(err);
                     let object = JSON.parse(content);
 
-                    sendRosterEmbed(args[0], '', object, message.channel);
+                    sendRosterEmbed(args[0], undefined, object, message.channel);
                 });
             }
 
@@ -108,7 +107,9 @@ module.exports = {
                 }
                 if (!args[2] || isNaN(parseInt(args[2]))) return message.channel.send('When do you want to game in?');
 
-                const time = Math.abs(parseInt(args[2])) * 60000;
+                // const time = Math.abs(parseInt(args[2])) * 60000;
+                const time = Math.abs(parseInt(args[2])) * 1000; //! for debug purposes only
+
                 //* include userID, name, channel, args
                 fs.readFile(`./games/reserves.json`, (err, content) => {
                     if (err) return console.error(err);
@@ -160,7 +161,7 @@ module.exports = {
  * @param {Object} roster Roster object
  * @param {Object} channel message.channel
  */
-async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefined) {
+async function sendRosterEmbed(game, remark = undefined, roster, channel, mentionID = undefined) {
     let gamers = [];
     let reserves = [];
     for (const prop in roster) {
@@ -178,13 +179,19 @@ async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefi
         reserves.push(`${reservesList[p].name} in ${minutesLeft} minute(s)`);
     }
 
-    const embed = new Discord.MessageEmbed()
+    const embed = new MessageEmbed()
         .setTitle(`${game} roster - ${gamers.length}`)
         .setColor('#ff5555')
         .setDescription(gamers.join('\n'))
         .addField('reserves', reserves.join('\n') || 'none');
 
-    channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
+    // if (remark === undefined) {
+    //     return channel.send({ embeds: [embed], allowedMentions: [mentionID] });
+
+    // }
+
+    // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
+    channel.send({ embeds: [embed], ...(mentionID && { allowedMentions: [mentionID] }), ...(remark && { content: remark }) });
 }
 
 /**
@@ -195,8 +202,9 @@ async function sendRosterEmbed(game, remark, roster, channel, mentionID = undefi
  */
 async function gameIn(discordID, name, channel, args, mention = false) {
     const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
-    const reservesJSON = await fs.promises.readFile('./games/reserves.json');
-    const reserves = JSON.parse(reservesJSON);
+    const reservesJSON = await fs.promises.readFile('./games/reserves.json', 'utf8');
+    // console.log(reservesJSON);
+    const reserves = JSON.parse(reservesJSON); //! unexpected end of JSON input
 
     for (r in reserves) {
         if (reserves[r].id === discordID) delete reserves[r];

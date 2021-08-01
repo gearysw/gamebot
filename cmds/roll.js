@@ -39,7 +39,7 @@ module.exports = {
                         message.channel.send('Stop it, Nils.');
                         return;
                     }
-                    message.channel.send(num);
+                    message.channel.send(num.toString());
                 }
             }
         } else {

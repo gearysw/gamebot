@@ -1,10 +1,10 @@
 const { prefix, token, CSGO_PATH } = require('./config.json');
-const Discord = require('discord.js');
+const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
-const bot = new Discord.Client({ disableEveryone: true });
+const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS] });
 // const { spawn } = require('child_process');
 
-bot.commands = new Discord.Collection();
+bot.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'));
 
@@ -35,10 +35,10 @@ bot.on('ready', async () => {
         for (const g of games) {
             if (!fs.existsSync(`./games/${g}.json`)) continue;
 
-            fs.readFile(`./games/${g}.json`, (err, content) => {
+            fs.readFile(`./games/${g}.json`, 'utf8', (err, content) => {
                 if (err) return console.error(err);
 
-                let contentObj = JSON.parse(content);
+                let contentObj = JSON.parse(content); //! unexpected end of JSON input
                 for (const prop in contentObj) {
                     if (contentObj[prop].expire < Date.now()) delete contentObj[prop];
                 }
@@ -59,10 +59,11 @@ bot.on('ready', async () => {
         fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
             if (err) console.error(err);
         })
-    }, 60000);
+        // }, 60000);
+    }, 10000); //! for debug purposes only
 });
 
-bot.on('message', async (message) => {
+bot.on('messageCreate', async (message) => {
     if (message.author.bot) return; //*  ignores messages made by bots
     if (message.channel.type === ('dm' || 'group')) return; //* ignores messages outside of channels
     if (message.content.toLowerCase().includes('\`')) return; //* ignores messages with code blocks

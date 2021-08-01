@@ -6,7 +6,7 @@
     "dependencies": {
         "axios": "^0.21.1",
         "cheerio": "^1.0.0-rc.10",
-        "discord.js": "^13.0.0-dev.4886ae2.1627214570",
+        "discord.js": "^13.0.0-dev.t1627689836.ee3cdc8",
         "uuid": "^8.3.2"
     },
     "devDependencies": {},
