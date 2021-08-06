@@ -4,12 +4,12 @@
     "description": "",
     "main": "bot.js",
     "dependencies": {
+        "@discordjs/rest": "^0.1.0-canary.0",
         "axios": "^0.21.1",
         "cheerio": "^1.0.0-rc.10",
-        "discord.js": "^13.0.0-dev.t1627689836.ee3cdc8",
+        "discord.js": "^13.0.0",
         "uuid": "^8.3.2"
     },
-    "devDependencies": {},
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

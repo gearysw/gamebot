@@ -24,7 +24,7 @@ module.exports = {
             if (i === 25) break;
         }
 
-        message.channel.send(instantsEmbed);
+        message.channel.send({ embeds: [instantsEmbed] });
     }
 }
 

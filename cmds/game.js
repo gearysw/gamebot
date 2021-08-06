@@ -3,26 +3,33 @@ const fs = require('fs');
 const { expiration } = require('../config.json');
 const { v4: uuidv4 } = require('uuid');
 
+const gamesObject = fs.readFileSync('./games.json', 'utf-8');
+const games = JSON.parse(gamesObject);
+
 module.exports = {
     name: 'game',
     description: 'Add yourself to the list of people looking to join a game',
     execute: async (bot, message, args, child) => {
-        const gamesObject = await fs.promises.readFile('./games.json', 'utf8');
-        const games = JSON.parse(gamesObject).games;
+        // const gamesObject = await fs.promises.readFile('./games.json', 'utf8');
+        // const games = JSON.parse(gamesObject).games;
 
         try {
             // game over YEAHHHHH
-            if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) return message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
+            // if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) return message.channel.send('https://www.youtube.com/watch?v=IsS_VMzY10I');
+            if (args[0] === 'over' || (games.includes(args[0]) && args[1] === 'over')) return 'https://www.youtube.com/watch?v=IsS_VMzY10I';
 
             // show the list of games
-            if (args[0] === 'list') return message.channel.send(games.sort().join(', '));
+            // if (args[0] === 'list') return message.channel.send(games.sort().join(', '));
+            if (args[0] === 'list') return games.sort().join(', ');
 
             // command to add a game to the list of games
             if (args[0] === 'add') {
                 // catch error in case no game is appended
-                if (!args[1]) return message.channel.send('What game?')
+                // if (!args[1]) return message.channel.send('What game?')
+                if (!args[1]) return 'What game?';
 
-                if (games.includes(args[1])) return message.channel.send(`${args[1]} is already on the list.`);
+                // if (games.includes(args[1])) return message.channel.send(`${args[1]} is already on the list.`);
+                if (games.includes(args[1])) return `${args[1]} is already on the list.`
 
                 games.push(args[1]);
 
@@ -32,16 +39,22 @@ module.exports = {
 
                 fs.writeFile('./games.json', JSON.stringify(json, null, '\t'), err => {
                     if (err) console.error(err);
-                    message.channel.send(`${args[1]} added to the list.`);
+                    // message.channel.send(`${args[1]} added to the list.`);
+                    return `${args[1]} added to the list.`;
+
                 });
                 return;
             }
 
             // command to remove a game from a list
             if (args[0] === 'remove') {
-                if (!args[1]) return message.channel.send('What game?');
+                // if (!args[1]) return message.channel.send('What game?');
+                if (!args[1]) return 'What game?';
 
-                if (!games.includes(args[1])) return message.channel.send(`${args[1]} is not even on the list.`);
+
+                // if (!games.includes(args[1])) return message.channel.send(`${args[1]} is not even on the list.`);
+                if (!games.includes(args[1])) return `${args[1]} is not even on the list.`;
+
 
                 const index = games.indexOf(args[1])
                 games.splice(index, 1);
@@ -52,7 +65,9 @@ module.exports = {
 
                 fs.writeFile('./games.json', JSON.stringify(json, null, '\t'), err => {
                     if (err) console.error(err);
-                    message.channel.send(`${args[1]} removed from the list.`);
+                    // message.channel.send(`${args[1]} removed from the list.`);
+                    return `${args[1]} removed from the list.`;
+
                 });
                 return;
             }
@@ -107,8 +122,8 @@ module.exports = {
                 }
                 if (!args[2] || isNaN(parseInt(args[2]))) return message.channel.send('When do you want to game in?');
 
-                // const time = Math.abs(parseInt(args[2])) * 60000;
-                const time = Math.abs(parseInt(args[2])) * 1000; //! for debug purposes only
+                const time = Math.abs(parseInt(args[2])) * 60000;
+                // const time = Math.abs(parseInt(args[2])) * 1000; //! for debug purposes only
 
                 //* include userID, name, channel, args
                 fs.readFile(`./games/reserves.json`, (err, content) => {
@@ -126,6 +141,7 @@ module.exports = {
 
                     reserves[selectObj] = {
                         id: message.author.id,
+                        refMessage: message.id,
                         time: Date.now() + time,
                         name: (!message.member.nickname) ? message.author.username : message.member.nickname,
                         channel: message.channel.id,
@@ -134,7 +150,7 @@ module.exports = {
 
                     fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
                         if (err) return console.error(err);
-                        message.channel.send(`You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minute(s).`);
+                        return `You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minute(s).`;
                     });
                 });
             }
@@ -143,7 +159,7 @@ module.exports = {
             if (games.includes(args[0]) && args[1] === 'clear') {
                 fs.writeFile(`./games/${args[0]}.json`, JSON.stringify({}), err => {
                     if (err) return console.error(err);
-                    message.channel.send(`${args[0]} roster cleared`);
+                    return `${args[0]} roster cleared`;
                 });
             }
         } catch (error) {
@@ -152,6 +168,9 @@ module.exports = {
     },
     checkIn: async (id, name, channel, args) => {
         gameIn(id, name, channel, args, true);
+    },
+    interact: async (interaction) => {
+
     }
 }
 /**
@@ -191,7 +210,7 @@ async function sendRosterEmbed(game, remark = undefined, roster, channel, mentio
     // }
 
     // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
-    channel.send({ embeds: [embed], ...(mentionID && { allowedMentions: [mentionID] }), ...(remark && { content: remark }) });
+    return { embeds: [embed], ...(mentionID && { allowedMentions: [mentionID] }), ...(remark && { content: remark }) };
 }
 
 /**
@@ -202,9 +221,9 @@ async function sendRosterEmbed(game, remark = undefined, roster, channel, mentio
  */
 async function gameIn(discordID, name, channel, args, mention = false) {
     const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
-    const reservesJSON = await fs.promises.readFile('./games/reserves.json', 'utf8');
-    // console.log(reservesJSON);
-    const reserves = JSON.parse(reservesJSON); //! unexpected end of JSON input
+
+    const content = fs.readFileSync('./games/reserves.json');
+    const reserves = JSON.parse(content);
 
     for (r in reserves) {
         if (reserves[r].id === discordID) delete reserves[r];
