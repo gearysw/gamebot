@@ -38,12 +38,19 @@ module.exports = {
                 description: 'Check into a game roster',
                 type: 1,
                 options: [{
-                    name: 'game',
-                    description: 'Name of the game',
-                    type: 3,
-                    required: true,
-                    choices: choices
-                }]
+                        name: 'game',
+                        description: 'Name of the game',
+                        type: 3,
+                        required: true,
+                        choices: choices,
+                    },
+                    {
+                        name: 'minutes',
+                        description: 'How long to check in for. If omitted, defaults to 75 minutes.',
+                        type: 4,
+                        required: false
+                    }
+                ]
             },
             {
                 name: 'out',
