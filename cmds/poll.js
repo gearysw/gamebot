@@ -32,17 +32,29 @@ module.exports = {
     interact: async interaction => {
         const options = interaction.options.data;
         // console.log(options);
-        interaction.reply('Poll created');
+        interaction.reply({ content: 'Poll created', ephemeral: true });
         const pollOptions = options.slice(2);
 
         const channel = interaction.channel;
 
         //TODO figure out how to start a second row programmatically
-        const row1 = new MessageActionRow()
-        for (o of pollOptions) {
-            row1.addComponents(new MessageButton().setCustomId(o.name).setLabel(o.value).setStyle('PRIMARY'));
-        }
+        let messageContent = { content: options[1].value, components: [] };
 
-        channel.send({ content: options[1].value, components: [row1] });
+        const row1 = new MessageActionRow();
+        const row2 = new MessageActionRow();
+        for ([i, o] of pollOptions.entries()) {
+            if (i < 5) {
+                row1.addComponents(new MessageButton().setCustomId(o.name).setLabel(o.value).setStyle('PRIMARY'));
+                // messageContent['components'].push(row1);
+            }
+            if (i >= 5) {
+                row2.addComponents(new MessageButton().setCustomId(o.name).setLabel(o.value).setStyle('PRIMARY'));
+                // messageContent['components'].push(row2);
+            }
+        }
+        messageContent['components'].push(row1);
+        if (pollOptions.length > 5) messageContent['components'].push(row2);
+
+        channel.send(messageContent);
     }
 }
