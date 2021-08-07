@@ -6,3 +6,4 @@ run_server.sh
 games.json
 ecosystem.config.js
 .vscode
+commands.json

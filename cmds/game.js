@@ -4,11 +4,120 @@ const { expiration } = require('../config.json');
 const { v4: uuidv4 } = require('uuid');
 
 const gamesObject = fs.readFileSync('./games.json', 'utf-8');
-const games = JSON.parse(gamesObject);
+const games = JSON.parse(gamesObject).games;
+
+const choices = [];
+for (g of games) {
+    choices.push({
+        name: g,
+        value: g
+    });
+}
 
 module.exports = {
     name: 'game',
     description: 'Add yourself to the list of people looking to join a game',
+    options: [{
+        name: 'roster',
+        description: 'Game roster commands',
+        type: 2,
+        options: [{
+                name: 'show',
+                description: 'Show roster of a game',
+                type: 1,
+                options: [{
+                    name: 'game',
+                    description: 'Name of the game',
+                    type: 3,
+                    required: true,
+                    choices: choices
+                }]
+            },
+            {
+                name: 'in',
+                description: 'Check into a game roster',
+                type: 1,
+                options: [{
+                    name: 'game',
+                    description: 'Name of the game',
+                    type: 3,
+                    required: true,
+                    choices: choices
+                }]
+            },
+            {
+                name: 'out',
+                description: 'Check out of a game roster',
+                type: 1,
+                options: [{
+                    name: 'game',
+                    description: 'Name of the game',
+                    type: 3,
+                    required: true,
+                    choices: choices
+                }]
+            },
+            {
+                name: 'reserve',
+                description: 'Reserve a spot on the game roster',
+                type: 1,
+                options: [{
+                        name: 'game',
+                        description: 'Name of the game',
+                        type: 3,
+                        required: true,
+                        choices: choices
+                    },
+                    {
+                        name: 'minutes',
+                        description: 'How long until you check in. If omitted, defaults to 30 minutes.',
+                        type: 4,
+                        require: false
+                    }
+                ]
+            },
+            {
+                name: 'clear',
+                description: 'Clear the roster of a game',
+                type: 1,
+                options: [{
+                    name: 'game',
+                    description: 'Name of the game',
+                    type: 3,
+                    required: true
+                }]
+            }
+        ]
+    }, {
+        name: 'list',
+        description: 'Game list commands',
+        type: 2,
+        options: [{
+            name: 'add',
+            description: 'Add a game into the list',
+            type: 1,
+            options: [{
+                name: 'game',
+                description: 'Name of the game',
+                type: 3,
+                required: true
+            }]
+        }, {
+            name: 'remove',
+            description: 'Remove a game from the list',
+            type: 1,
+            options: [{
+                name: 'game',
+                description: 'Name of the game',
+                type: 3,
+                required: true
+            }]
+        }, {
+            name: 'show',
+            description: 'Returns the list of saved games',
+            type: 1
+        }]
+    }],
     execute: async (bot, message, args, child) => {
         // const gamesObject = await fs.promises.readFile('./games.json', 'utf8');
         // const games = JSON.parse(gamesObject).games;
@@ -170,6 +279,12 @@ module.exports = {
         gameIn(id, name, channel, args, true);
     },
     interact: async (interaction) => {
+        const commandGroup = interaction.options.getSubcommandGroup();
+        const subCommand = interaction.options.getSubcommand();
+        const game = interaction.options.getString('game');
+        const minutes = interaction.options.getInteger('minutes');
+
+        if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
 
     }
 }

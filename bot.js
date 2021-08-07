@@ -1,14 +1,12 @@
 const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, LEADERSHIP_ROLE } = require('./config.json');
 const { Client, Intents, Collection } = require('discord.js');
-const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
 const fs = require('fs');
 // const { data } = require('cheerio/lib/api/attributes');
 const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 // const { spawn } = require('child_process');
+const commandCache = require('./commands.json');
 
 bot.commands = new Collection();
-// bot.interactions = new Collection();
 
 const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'));
 
@@ -16,7 +14,6 @@ for (const f of commandFiles) {
     const command = require(`./cmds/${f}`);
     bot.commands.set(command.name, command);
 }
-// deployHelp();
 
 const child = 'spawn'; //* Use this if the bot doesn't need to use node's child processes
 // const child = spawn('sh');
@@ -31,8 +28,6 @@ bot.login(token);
 
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user.username}`);
-    // console.log(bot.guilds.cache.first().id);
-    // deployDeploy(GUILD_ID);
     setInterval(async () => {
         const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
         const games = JSON.parse(gamesObj).games;
@@ -66,9 +61,7 @@ bot.on('ready', async () => {
         })
     }, 60000);
     // }, 10000); //! for debug purposes only
-    // console.log(bot.interactions.get('help').name);
     setCommandPermissions();
-    // console.log(bot.application.id);
 });
 
 bot.on('messageCreate', async (message) => {
@@ -99,30 +92,6 @@ bot.on('messageCreate', async (message) => {
 
 bot.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
-    // console.log(interaction);
-    // if (interaction.commandName === 'deploy') {
-    //     // await interaction.deferReply();
-    //     try {
-    //         deployCommands();
-    //         await interaction.reply({ content: 'Commands deployed!', ephemeral: true });
-    //         return;
-    //     } catch (error) {
-    //         interaction.reply({ content: 'Deploy failed', ephemeral: true });
-    //         console.error(error);
-    //     }
-    // }
-
-    // if (interaction.commandName === 'update') {
-    //     try {
-    //         updateCommands();
-    //         await interaction.reply({ content: 'Commands updated!', ephemeral: true });
-    //         return;
-    //     } catch (error) {
-    //         interaction.reply({ content: 'Update failed', ephemeral: true });
-    //         console.error(error);
-    //     }
-
-    // }
 
     if (!bot.commands.has(interaction.commandName)) return;
 
@@ -131,56 +100,12 @@ bot.on('interactionCreate', async interaction => {
     } catch (error) {
         console.error(error);
     }
-    // const command = bot.commands.get(interaction.commandName) || bot.commands.find(cmd => cmd.aliases && cmd.aliases.includes(cmd));
-    // if (!command) return interaction.reply({ content: 'Unknown command', ephemeral: true });
-    // const reply = command.execute(bot, interation, )
 });
-
-async function deployDeploy(guild) {
-    const data = [{
-            name: 'deploy',
-            description: 'Deploys the slash commands'
-        },
-        {
-            name: 'update',
-            description: 'Updates slash commands'
-        }
-    ];
-
-    const command = await bot.guilds.cache.get(guild).commands.set(data);
-    // console.log(command);
-}
-
-async function updateCommands() {
-    const commands = bot.commands.map(({ interact, execute, aliases, ...data }) => data);
-    const rest = new REST({ version: '9' }).setToken(token);
-    // console.log(commands);
-
-    try {
-        console.log('Registering slash commands...');
-
-        await rest.put(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID), { body: commands });
-
-        console.log('Slash commands registered');
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-async function deployCommands() {
-    const commands = bot.commands.map(({ execute, interact, aliases, ...data }) => data);
-    // console.log(commands);
-    await bot.guilds.cache.get(GUILD_ID).commands.set(commands);
-}
-
-async function deployHelp() {
-    const command = require('./cmds/help.js');
-    bot.interactions.set(command.name, command);
-}
 
 async function setCommandPermissions() {
     bot.application.fetch();
-    const deployCommand = await bot.guilds.cache.get(GUILD_ID).commands.fetch('873344126622507048');
+    const index = commandCache.map(c => c.name).indexOf('deploy');
+    const deployCommand = await bot.guilds.cache.get(GUILD_ID).commands.fetch(commandCache[index].id);
     // console.log(deployCommand);
     const permissions = [{
         id: LEADERSHIP_ROLE,
