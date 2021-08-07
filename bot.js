@@ -5,6 +5,7 @@ const fs = require('fs');
 const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 // const { spawn } = require('child_process');
 const commandCache = require('./commands.json');
+const { interact } = require('./cmds/roll');
 
 bot.commands = new Collection();
 
@@ -91,15 +92,8 @@ bot.on('messageCreate', async (message) => {
 });
 
 bot.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
-
-    if (!bot.commands.has(interaction.commandName)) return;
-
-    try {
-        await bot.commands.get(interaction.commandName).interact(interaction);
-    } catch (error) {
-        console.error(error);
-    }
+    if (interaction.isCommand()) commandHandler(interaction);
+    if (interaction.isButton()) buttonHandler(interaction);
 });
 
 async function setCommandPermissions() {
@@ -113,4 +107,23 @@ async function setCommandPermissions() {
         permission: true
     }];
     await deployCommand.permissions.add({ permissions });
+}
+
+async function commandHandler(interaction) {
+    if (!bot.commands.has(interaction.commandName)) return;
+    try {
+        await bot.commands.get(interaction.commandName).interact(interaction);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function buttonHandler(interaction) {
+    // console.log(interaction);
+    if (interaction.customId.includes('poll-option')) pollHandler(interaction); //! function not getting called
+}
+
+async function pollHandler(interaction) {
+    console.log(`message ID: ${interaction.message.id}\nbutton ID: ${interaction.customId}`);
+    interaction.reply({ content: 'Your poll has been stored!', ephemeral: true });
 }

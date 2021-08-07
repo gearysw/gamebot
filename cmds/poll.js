@@ -16,7 +16,7 @@ for (let i = 1; i <= 10; i++) {
     let bool = false;
     if (i < 3) bool = true;
     const option = {
-        name: `option-${i}`,
+        name: `poll-option-${i}`,
         description: `Option ${i}`,
         type: 3,
         required: bool
