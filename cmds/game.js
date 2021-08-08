@@ -290,10 +290,30 @@ module.exports = {
         const subCommand = interaction.options.getSubcommand();
         const game = interaction.options.getString('game');
         const minutes = interaction.options.getInteger('minutes');
+        console.log(subCommand);
 
         if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
+        if (commandGroup === 'roster' && subCommand === 'show') {
+            console.log(game);
+            const interactionReply = await showCurrentRoster(game);
+            interaction.reply(interactionReply); //! showing TypeError: cannot read property fetchReply of undefined
+        }
 
     }
+}
+
+async function showCurrentRoster(game) {
+    if (!fs.existsSync(`./games/${game}.json`)) fs.writeFileSync(`./games/${game}.json`, JSON.stringify({}));
+
+    fs.readFile(`./games/${game}.json`, async (err, content) => {
+        if (err) return console.error(err);
+
+        const roster = JSON.parse(content);
+        console.log(roster);
+        const reply = await sendRosterEmbed(game, undefined, roster);
+        console.log(reply);
+        return reply;
+    })
 }
 /**
  * 
@@ -332,7 +352,8 @@ async function sendRosterEmbed(game, remark = undefined, roster, channel, mentio
     // }
 
     // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
-    return { embeds: [embed], ...(mentionID && { allowedMentions: [mentionID] }), ...(remark && { content: remark }) };
+    return { embeds: [embed], ...(remark && { content: remark }) };
+    // return {embeds: }
 }
 
 /**
@@ -383,4 +404,8 @@ async function gameIn(discordID, name, channel, args, mention = false) {
         const mentionID = (mention) ? discordID : undefined
         sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, channel, mentionID);
     });
+}
+
+async function gameReserve() {
+
 }

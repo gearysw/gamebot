@@ -119,7 +119,7 @@ async function commandHandler(interaction) {
 }
 
 async function buttonHandler(interaction) {
-    // console.log(interaction);
+    // console.log(interaction.customId);
     if (interaction.customId.includes('poll-option')) pollHandler(interaction); //! function not getting called
 }
 
