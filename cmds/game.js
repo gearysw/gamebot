@@ -30,7 +30,7 @@ module.exports = {
                     description: 'Name of the game',
                     type: 3,
                     required: true,
-                    choices: choices
+                    // choices: choices
                 }]
             },
             {
@@ -42,7 +42,7 @@ module.exports = {
                         description: 'Name of the game',
                         type: 3,
                         required: true,
-                        choices: choices,
+                        // choices: choices,
                     },
                     {
                         name: 'minutes',
@@ -61,7 +61,7 @@ module.exports = {
                     description: 'Name of the game',
                     type: 3,
                     required: true,
-                    choices: choices
+                    // choices: choices
                 }]
             },
             {
@@ -73,7 +73,7 @@ module.exports = {
                         description: 'Name of the game',
                         type: 3,
                         required: true,
-                        choices: choices
+                        // choices: choices
                     },
                     {
                         name: 'minutes',
@@ -215,7 +215,8 @@ module.exports = {
         const subCommand = interaction.options.getSubcommand();
         const game = interaction.options.getString('game');
         const minutes = interaction.options.getInteger('minutes');
-        // console.log(subCommand);
+
+        if (!games.includes(game)) interaction.reply({ content: `${game} is not on the list of games`, ephemeral: true });
 
         if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
         if (commandGroup === 'roster' && subCommand === 'show') {
