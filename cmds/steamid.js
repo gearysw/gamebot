@@ -21,5 +21,8 @@ module.exports = {
                 });
             });
         } else message.channel.send('Provide your steamID in the format of `STEAM_X:Y:Z`, where X, Y, Z are integers');
+    },
+    interact: async interaction => {
+        interaction.reply({ content: 'Not yet implemented as slash command.', ephemeral: true });
     }
 }

@@ -24,7 +24,10 @@ module.exports = {
             if (i === 25) break;
         }
 
-        message.channel.send(instantsEmbed);
+        message.channel.send({ embeds: [instantsEmbed] });
+    },
+    interact: async interaction => {
+        interaction.reply({ content: 'Not yet implemented as slash command.', ephemeral: true });
     }
 }
 

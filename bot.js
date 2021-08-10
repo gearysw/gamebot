@@ -1,10 +1,11 @@
-const { prefix, token, CSGO_PATH } = require('./config.json');
-const Discord = require('discord.js');
+const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, BOT_OWNER, expiration } = require('./config.json');
+const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
-const bot = new Discord.Client({ disableEveryone: true });
+const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 // const { spawn } = require('child_process');
+const commandCache = require('./commands.json');
 
-bot.commands = new Discord.Collection();
+bot.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'));
 
@@ -27,42 +28,38 @@ bot.login(token);
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user.username}`);
     setInterval(async () => {
-        const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
-        const games = JSON.parse(gamesObj).games;
-        const reservesObj = await fs.promises.readFile(`./games/reserves.json`, 'utf-8');
-        let reserves = JSON.parse(reservesObj);
+        const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
+        let reserves = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
 
         for (const g of games) {
             if (!fs.existsSync(`./games/${g}.json`)) continue;
 
-            fs.readFile(`./games/${g}.json`, (err, content) => {
-                if (err) return console.error(err);
+            const content = JSON.parse(fs.readFileSync(`./games/${g}.json`, 'utf-8'));
 
-                let contentObj = JSON.parse(content);
-                for (const prop in contentObj) {
-                    if (contentObj[prop].expire < Date.now()) delete contentObj[prop];
-                }
+            for (const prop in content) {
+                if (content[prop].expire < Date.now()) delete content[prop];
+            }
 
-                fs.writeFile(`./games/${g}.json`, JSON.stringify(contentObj, null, '\t'), err => {
-                    if (err) console.error(err)
-                });
-            })
+            fs.writeFileSync(`./games/${g}.json`, JSON.stringify(content, null, '\t'));
         }
 
-        for (const r in reserves) {
+        for (const r in reserves) { //! unexpected end of JSON input
             if (reserves[r].time < Date.now()) {
                 const channel = await bot.channels.cache.get(reserves[r].channel);
-                bot.commands.get('game').checkIn(reserves[r].id, reserves[r].name, channel, reserves[r].args);
+                const command = bot.commands.get('game')
+                const msg = await command.reservationHandler(reserves[r].game, reserves[r].name, reserves[r].id, expiration);
                 delete reserves[r];
+
+                channel.send(msg)
             }
         }
-        fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
-            if (err) console.error(err);
-        })
+        fs.writeFileSync(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'));
     }, 60000);
+    // }, 10000); //! for debug purposes only
+    setCommandPermissions();
 });
 
-bot.on('message', async (message) => {
+bot.on('messageCreate', async (message) => {
     if (message.author.bot) return; //*  ignores messages made by bots
     if (message.channel.type === ('dm' || 'group')) return; //* ignores messages outside of channels
     if (message.content.toLowerCase().includes('\`')) return; //* ignores messages with code blocks
@@ -78,7 +75,8 @@ bot.on('message', async (message) => {
             if (!command) return;
             if (command.args && !args.length) return message.channel.send(`You need to provide arguments for that command. Type \`${prefix}help ${command.name}\` to see how to use the command.`);
 
-            command.execute(bot, message, args, child);
+            const reply = await command.execute(bot, message, args, child);
+            message.channel.send(reply);
         } catch (error) {
             console.error(error);
             message.channel.send('Helpful error message');
@@ -86,3 +84,39 @@ bot.on('message', async (message) => {
         }
     }
 });
+
+bot.on('interactionCreate', async interaction => {
+    if (interaction.isCommand()) commandHandler(interaction);
+    if (interaction.isButton()) buttonHandler(interaction);
+});
+
+async function setCommandPermissions() {
+    bot.application.fetch();
+    const index = commandCache.map(c => c.name).indexOf('deploy');
+    if (index === -1) return;
+    const deployCommand = await bot.guilds.cache.get(GUILD_ID).commands.fetch(commandCache[index].id);
+    const permissions = [{
+        id: BOT_OWNER,
+        type: 'USER',
+        permission: true
+    }];
+    await deployCommand.permissions.add({ permissions });
+}
+
+async function commandHandler(interaction) {
+    if (!bot.commands.has(interaction.commandName)) return;
+    try {
+        await bot.commands.get(interaction.commandName).interact(interaction);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function buttonHandler(interaction) {
+    if (interaction.customId.includes('poll-option')) pollHandler(interaction);
+}
+
+async function pollHandler(interaction) {
+    console.log(`message ID: ${interaction.message.id}\nbutton ID: ${interaction.customId}`);
+    interaction.reply({ content: 'Your poll has been stored!', ephemeral: true });
+}
