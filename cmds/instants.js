@@ -25,6 +25,9 @@ module.exports = {
         }
 
         message.channel.send({ embeds: [instantsEmbed] });
+    },
+    interact: async interaction => {
+        interaction.reply({ content: 'Not yet implemented as slash command.', ephemeral: true });
     }
 }
 

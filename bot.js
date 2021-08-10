@@ -1,11 +1,9 @@
-const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, LEADERSHIP_ROLE, expiration } = require('./config.json');
+const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, BOT_OWNER, expiration } = require('./config.json');
 const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
-// const { data } = require('cheerio/lib/api/attributes');
 const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 // const { spawn } = require('child_process');
 const commandCache = require('./commands.json');
-const { interact } = require('./cmds/roll');
 
 bot.commands = new Collection();
 
@@ -30,16 +28,13 @@ bot.login(token);
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user.username}`);
     setInterval(async () => {
-        // const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
         const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
-        // const reservesObj = await fs.promises.readFile(`./games/reserves.json`, 'utf-8');
         let reserves = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
 
         for (const g of games) {
             if (!fs.existsSync(`./games/${g}.json`)) continue;
 
             const content = JSON.parse(fs.readFileSync(`./games/${g}.json`, 'utf-8'));
-            // const contentObj = JSON.parse(content);
 
             for (const prop in content) {
                 if (content[prop].expire < Date.now()) delete content[prop];
@@ -51,7 +46,6 @@ bot.on('ready', async () => {
         for (const r in reserves) { //! unexpected end of JSON input
             if (reserves[r].time < Date.now()) {
                 const channel = await bot.channels.cache.get(reserves[r].channel);
-                // bot.commands.get('game').checkIn(reserves[r].id, reserves[r].name, channel, reserves[r].args);
                 const command = bot.commands.get('game')
                 const msg = await command.reservationHandler(reserves[r].game, reserves[r].name, reserves[r].id, expiration);
                 delete reserves[r];
@@ -99,11 +93,11 @@ bot.on('interactionCreate', async interaction => {
 async function setCommandPermissions() {
     bot.application.fetch();
     const index = commandCache.map(c => c.name).indexOf('deploy');
+    if (index === -1) return;
     const deployCommand = await bot.guilds.cache.get(GUILD_ID).commands.fetch(commandCache[index].id);
-    // console.log(deployCommand);
     const permissions = [{
-        id: LEADERSHIP_ROLE,
-        type: 'ROLE',
+        id: BOT_OWNER,
+        type: 'USER',
         permission: true
     }];
     await deployCommand.permissions.add({ permissions });
@@ -119,8 +113,7 @@ async function commandHandler(interaction) {
 }
 
 async function buttonHandler(interaction) {
-    // console.log(interaction.customId);
-    if (interaction.customId.includes('poll-option')) pollHandler(interaction); //! function not getting called
+    if (interaction.customId.includes('poll-option')) pollHandler(interaction);
 }
 
 async function pollHandler(interaction) {

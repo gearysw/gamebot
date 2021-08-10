@@ -3,8 +3,8 @@ const fs = require('fs');
 const { expiration } = require('../config.json');
 const { v4: uuidv4 } = require('uuid');
 
-const gamesObject = fs.readFileSync('./games.json', 'utf-8');
-const games = JSON.parse(gamesObject).games;
+const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
+// const games = JSON.parse(gamesObject).games;
 
 const choices = [];
 for (g of games) {
@@ -145,21 +145,7 @@ module.exports = {
                 if (!args[1]) return 'What game?';
 
                 // if (games.includes(args[1])) return message.channel.send(`${args[1]} is already on the list.`);
-                if (games.includes(args[1])) return `${args[1]} is already on the list.`
-
-                games.push(args[1]);
-
-                const json = {
-                    "games": games
-                }
-
-                fs.writeFile('./games.json', JSON.stringify(json, null, '\t'), err => {
-                    if (err) console.error(err);
-                    // message.channel.send(`${args[1]} added to the list.`);
-                    return `${args[1]} added to the list.`;
-
-                });
-                return;
+                return await addGame(args[1]);
             }
 
             // command to remove a game from a list
@@ -169,23 +155,7 @@ module.exports = {
 
 
                 // if (!games.includes(args[1])) return message.channel.send(`${args[1]} is not even on the list.`);
-                if (!games.includes(args[1])) return `${args[1]} is not even on the list.`;
-
-
-                const index = games.indexOf(args[1])
-                games.splice(index, 1);
-
-                const json = {
-                    "games": games
-                }
-
-                fs.writeFile('./games.json', JSON.stringify(json, null, '\t'), err => {
-                    if (err) console.error(err);
-                    // message.channel.send(`${args[1]} removed from the list.`);
-                    return `${args[1]} removed from the list.`;
-
-                });
-                return;
+                return await removeGame(args[1]);
             }
 
             // if no args included, send help
@@ -271,6 +241,14 @@ module.exports = {
             if (minutes) reply = await gameReserve(game, interaction.user.id, name, interaction.channelId, minutes * 60000);
             else reply = await gameReserve(game, interaction.user.id, name, interaction.channelId);
 
+            interaction.reply(reply);
+        }
+        if (commandGroup === 'list' && subCommand === 'add') {
+            const reply = await addGame(game);
+            interaction.reply(reply);
+        }
+        if (commandGroup === 'list' && subCommand === 'remove') {
+            const reply = await removeGame(game);
             interaction.reply(reply);
         }
     }
@@ -403,4 +381,37 @@ async function gameReserve(game, playerId, playerName, channel, time = 1800000) 
     fs.writeFileSync('./games/reserves.json', JSON.stringify(reserves, null, '\t'));
 
     return { content: `You've reserved your spot on ${game} in ${Math.ceil(time/60000)} minute(s).` };
+}
+
+/**
+ * 
+ * @param {string} game name of game
+ * @returns reply object
+ */
+async function addGame(game) {
+    if (games.includes(game)) return { content: `${game} is already on the list.`, ephemeral: true };
+    games.push(game);
+    const json = {
+        "games": games
+    }
+
+    fs.writeFileSync('./games.json', JSON.stringify(json, null, '\t'));
+    return { content: `${game} added to the list` };
+}
+
+/**
+ * 
+ * @param {string} game name of game
+ * @returns reply object
+ */
+async function removeGame(game) {
+    if (!games.includes(game)) return { content: `${game} is not even on the list.`, ephemeral: true };
+
+    const index = games.indexOf(game);
+    games.splice(index, 1);
+
+    const json = { "games": games };
+
+    fs.writeFileSync('./games.json', JSON.stringify(json, null, '\t'));
+    return { content: `${game} removed from the list` };
 }
