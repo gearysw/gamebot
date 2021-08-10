@@ -290,11 +290,11 @@ module.exports = {
         const subCommand = interaction.options.getSubcommand();
         const game = interaction.options.getString('game');
         const minutes = interaction.options.getInteger('minutes');
-        console.log(subCommand);
+        // console.log(subCommand);
 
         if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
         if (commandGroup === 'roster' && subCommand === 'show') {
-            console.log(game);
+            // console.log(game);
             const interactionReply = await showCurrentRoster(game);
             interaction.reply(interactionReply); //! showing TypeError: cannot read property fetchReply of undefined
         }
@@ -305,39 +305,21 @@ module.exports = {
 async function showCurrentRoster(game) {
     if (!fs.existsSync(`./games/${game}.json`)) fs.writeFileSync(`./games/${game}.json`, JSON.stringify({}));
 
-    fs.readFile(`./games/${game}.json`, async (err, content) => {
-        if (err) return console.error(err);
+    const roster = JSON.parse(fs.readFileSync(`./games/${game}.json`, 'utf-8'));
+    const gamers = [];
+    const reserves = [];
 
-        const roster = JSON.parse(content);
-        console.log(roster);
-        const reply = await sendRosterEmbed(game, undefined, roster);
-        console.log(reply);
-        return reply;
-    })
-}
-/**
- * 
- * @param {string} game Game being checked into
- * @param {string} remark Message for the bot to send, if empty put '' (empty string)
- * @param {Object} roster Roster object
- * @param {Object} channel message.channel
- */
-async function sendRosterEmbed(game, remark = undefined, roster, channel, mentionID = undefined) {
-    let gamers = [];
-    let reserves = [];
-    for (const prop in roster) {
-        gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
+    for (const p in roster) {
+        gamers.push(`${roster[p].name} - expires in ${Math.ceil(Math.trunc((roster[p].expire - Date.now())/60000))} minute(s)`)
     }
 
-    const readReserves = await fs.promises.readFile(`./games/reserves.json`);
-    const reservesList = JSON.parse(readReserves);
-
-    for (const p in reservesList) {
-        const reservedGame = reservesList[p].args[0];
+    const reservedPlayers = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
+    for (const p in reservedPlayers) {
+        const reservedGame = reservedPlayers[p].game;
         if (reservedGame !== game) continue;
 
-        const minutesLeft = Math.ceil((reservesList[p].time - Date.now()) / 60000);
-        reserves.push(`${reservesList[p].name} in ${minutesLeft} minute(s)`);
+        const minutesLeft = Math.ceil((reservedPlayers[p].time - Date.now()) / 60000);
+        reserves.push(`${reservedPlayers[p].name} in ${minutesLeft} minute(s)`);
     }
 
     const embed = new MessageEmbed()
@@ -346,15 +328,48 @@ async function sendRosterEmbed(game, remark = undefined, roster, channel, mentio
         .setDescription(gamers.join('\n'))
         .addField('reserves', reserves.join('\n') || 'none');
 
-    // if (remark === undefined) {
-    //     return channel.send({ embeds: [embed], allowedMentions: [mentionID] });
-
-    // }
-
-    // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
-    return { embeds: [embed], ...(remark && { content: remark }) };
-    // return {embeds: }
+    return { embeds: [embed] };
 }
+/**
+ * 
+ * @param {string} game Game being checked into
+ * @param {string} remark Message for the bot to send, if empty put '' (empty string)
+ * @param {Object} roster Roster object
+ * @param {Object} channel message.channel
+ */
+// async function sendRosterEmbed(game, remark = undefined, roster, channel, mentionID = undefined) {
+//     let gamers = [];
+//     let reserves = [];
+//     for (const prop in roster) {
+//         gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
+//     }
+
+//     const readReserves = await fs.promises.readFile(`./games/reserves.json`);
+//     const reservesList = JSON.parse(readReserves);
+
+//     for (const p in reservesList) {
+//         const reservedGame = reservesList[p].args[0];
+//         if (reservedGame !== game) continue;
+
+//         const minutesLeft = Math.ceil((reservesList[p].time - Date.now()) / 60000);
+//         reserves.push(`${reservesList[p].name} in ${minutesLeft} minute(s)`);
+//     }
+
+//     const embed = new MessageEmbed()
+//         .setTitle(`${game} roster - ${gamers.length}`)
+//         .setColor('#ff5555')
+//         .setDescription(gamers.join('\n'))
+//         .addField('reserves', reserves.join('\n') || 'none');
+
+//     // if (remark === undefined) {
+//     //     return channel.send({ embeds: [embed], allowedMentions: [mentionID] });
+
+//     // }
+
+//     // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
+//     return { embeds: [embed], ...(remark && { content: remark }) };
+//     // return {embeds: }
+// }
 
 /**
  * @param {String} discordID id of player

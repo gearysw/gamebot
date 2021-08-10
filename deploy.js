@@ -1,4 +1,4 @@
-const { token, CLIENT_ID, GUILD_ID, LEADERSHIP_ROLE } = require('./config.json');
+const { token, CLIENT_ID, GUILD_ID } = require('./config.json');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const { Client, Intents, Collection } = require('discord.js');
