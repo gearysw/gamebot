@@ -1,4 +1,4 @@
-const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, LEADERSHIP_ROLE } = require('./config.json');
+const { prefix, token, CSGO_PATH, CLIENT_ID, GUILD_ID, LEADERSHIP_ROLE, expiration } = require('./config.json');
 const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
 // const { data } = require('cheerio/lib/api/attributes');
@@ -30,36 +30,36 @@ bot.login(token);
 bot.on('ready', async () => {
     console.log(`Logged in as ${bot.user.username}`);
     setInterval(async () => {
-        const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
-        const games = JSON.parse(gamesObj).games;
-        const reservesObj = await fs.promises.readFile(`./games/reserves.json`, 'utf-8');
-        let reserves = JSON.parse(reservesObj);
+        // const gamesObj = await fs.promises.readFile('./games.json', 'utf-8');
+        const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
+        // const reservesObj = await fs.promises.readFile(`./games/reserves.json`, 'utf-8');
+        let reserves = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
 
         for (const g of games) {
             if (!fs.existsSync(`./games/${g}.json`)) continue;
 
-            const content = fs.readFileSync(`./games/${g}.json`);
-            const contentObj = JSON.parse(content);
+            const content = JSON.parse(fs.readFileSync(`./games/${g}.json`, 'utf-8'));
+            // const contentObj = JSON.parse(content);
 
-            for (const prop in contentObj) {
-                if (contentObj[prop].expire < Date.now()) delete contentObj[prop];
+            for (const prop in content) {
+                if (content[prop].expire < Date.now()) delete content[prop];
             }
 
-            fs.writeFile(`./games/${g}.json`, JSON.stringify(contentObj, null, '\t'), err => {
-                if (err) console.error(err)
-            });
+            fs.writeFileSync(`./games/${g}.json`, JSON.stringify(content, null, '\t'));
         }
 
-        for (const r in reserves) {
+        for (const r in reserves) { //! unexpected end of JSON input
             if (reserves[r].time < Date.now()) {
                 const channel = await bot.channels.cache.get(reserves[r].channel);
-                bot.commands.get('game').checkIn(reserves[r].id, reserves[r].name, channel, reserves[r].args);
+                // bot.commands.get('game').checkIn(reserves[r].id, reserves[r].name, channel, reserves[r].args);
+                const command = bot.commands.get('game')
+                const msg = await command.reservationHandler(reserves[r].game, reserves[r].name, reserves[r].id, expiration);
                 delete reserves[r];
+
+                channel.send(msg)
             }
         }
-        fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
-            if (err) console.error(err);
-        })
+        fs.writeFileSync(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'));
     }, 60000);
     // }, 10000); //! for debug purposes only
     setCommandPermissions();

@@ -213,61 +213,14 @@ module.exports = {
 
             // remove message author from roster of specified game
             if (games.includes(args[0]) && args[1] === 'out') {
-                if (!fs.existsSync(`./games/${args[0]}.json`)) {
-                    fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
-                }
-                fs.readFile(`./games/${args[0]}.json`, (err, content) => {
-                    if (err) return console.error(err);
-                    let gamers = JSON.parse(content);
-
-                    if (Object.keys(gamers).indexOf(message.author.id) === -1) return message.channel.send(`You're not even on the roster. Why would you abandon something you haven't started?`);
-                    delete gamers[message.author.id];
-
-                    fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                        if (err) console.error(err);
-                    });
-
-                    sendRosterEmbed(args[0], `You've abandoned your friends.`, gamers, message.channel);
-                });
+                const reply = await gameOut(args[0], message.author.id)
+                return reply;
             }
 
             if (games.includes(args[0]) && args[1] === 'reserve') {
-                if (!fs.existsSync(`./games/reserves.json`)) {
-                    fs.writeFileSync(`./games/reserves.json`, JSON.stringify({}));
-                }
-                if (!args[2] || isNaN(parseInt(args[2]))) return message.channel.send('When do you want to game in?');
-
-                const time = Math.abs(parseInt(args[2])) * 60000;
-                // const time = Math.abs(parseInt(args[2])) * 1000; //! for debug purposes only
-
-                //* include userID, name, channel, args
-                fs.readFile(`./games/reserves.json`, (err, content) => {
-                    if (err) return console.error(err);
-                    let reserves = JSON.parse(content);
-
-                    let selectObj = '';
-                    if (Object.keys(reserves).length > 0) {
-                        for (res in reserves) {
-                            if (reserves[res].id === message.author.id) {
-                                selectObj = res;
-                            } else selectObj = uuidv4();
-                        }
-                    } else selectObj = uuidv4();
-
-                    reserves[selectObj] = {
-                        id: message.author.id,
-                        refMessage: message.id,
-                        time: Date.now() + time,
-                        name: (!message.member.nickname) ? message.author.username : message.member.nickname,
-                        channel: message.channel.id,
-                        args: [args[0], 'in']
-                    }
-
-                    fs.writeFile(`./games/reserves.json`, JSON.stringify(reserves, null, '\t'), err => {
-                        if (err) return console.error(err);
-                        return `You've reserved your spot on ${args[0]} in ${Math.ceil(time/60000)} minute(s).`;
-                    });
-                });
+                const name = (!message.member.nickname) ? message.author.username : message.member.nickname;
+                if (!args[2] || isNaN(parseInt(args[2]))) return await gameReserve(args[0], message.author.id, name, message.channel.id);
+                return await gameReserve(args[0], message.author.id, name, message.channel.id, args[2] * 60000);
             }
 
             // clear the roster of specified game
@@ -281,8 +234,11 @@ module.exports = {
             console.error(error);
         }
     },
-    checkIn: async (id, name, channel, args) => {
-        gameIn(id, name, channel, args, true);
+    reservationHandler: async (game, name, playerId, expiration) => {
+        const reply = await gameIn(game, name, playerId, expiration);
+        reply['content'] = `<@${playerId}>, you're now on the ${game} roster.`;
+
+        return reply;
     },
     interact: async (interaction) => {
         const commandGroup = interaction.options.getSubcommandGroup();
@@ -305,7 +261,18 @@ module.exports = {
 
             interaction.reply(reply);
         }
+        if (commandGroup === 'roster' && subCommand === 'out') {
+            const reply = await gameOut(game, interaction.user.id);
+            interaction.reply(reply);
+        }
+        if (commandGroup === 'roster' && subCommand === 'reserve') {
+            const name = (!interaction.member.nickname) ? interaction.user.username : interaction.member.nickname;
+            let reply;
+            if (minutes) reply = await gameReserve(game, interaction.user.id, name, interaction.channelId, minutes * 60000);
+            else reply = await gameReserve(game, interaction.user.id, name, interaction.channelId);
 
+            interaction.reply(reply);
+        }
     }
 }
 /**
@@ -382,7 +349,58 @@ async function gameIn(game, playerName, playerId, expirationLength = expiration)
     return { content: `You're now on the ${game} roster.`, embeds: [embed] };
 }
 
+/**
+ * 
+ * @param {string} game name of game
+ * @param {string} playerId Discord ID of the player
+ * @returns interaction reply object
+ */
+async function gameOut(game, playerId) {
+    if (!fs.existsSync(`./games/${game}.json`)) fs.writeFileSync(`./games/${game}.json`, JSON.stringify({}));
 
-async function gameReserve() {
+    const gamers = JSON.parse(fs.readFileSync(`./games/${game}.json`, 'utf-8'));
+    if (Object.keys(gamers).indexOf(playerId) === -1) return { content: `You're not even on the roster. Why would you abandon something you haven't started?` };
+    delete gamers[playerId];
 
+    fs.writeFileSync(`./games/${game}.json`, JSON.stringify(gamers, null, '\t'));
+
+    const embed = await showCurrentRoster(game);
+    return { content: `You've abandoned your friends.`, embeds: [embed] };
+}
+
+/**
+ * 
+ * @param {string} game name of game
+ * @param {string} playerId Discord ID of player
+ * @param {string} playerName Server nickname or username of user
+ * @param {string} channel channel ID where player reserved spot
+ * @param {number} time time until check in in milliseconds
+ * @returns reply object
+ */
+async function gameReserve(game, playerId, playerName, channel, time = 1800000) {
+    if (!fs.existsSync('./games/reserves.json')) fs.writeFileSync('./games/reserves.json', JSON.stringify({}));
+    if (time === undefined) return { content: 'When do you want to check in?' };
+
+    const reserves = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
+
+    let selectObj = '';
+    if (Object.keys(reserves).length > 0) {
+        for (res in reserves) {
+            if (reserves[res].id === playerId) {
+                selectObj = res;
+            } else selectObj = uuidv4();
+        }
+    } else selectObj = uuidv4();
+
+    reserves[selectObj] = {
+        id: playerId,
+        time: Date.now() + time,
+        name: playerName,
+        channel: channel,
+        game: game
+    }
+
+    fs.writeFileSync('./games/reserves.json', JSON.stringify(reserves, null, '\t'));
+
+    return { content: `You've reserved your spot on ${game} in ${Math.ceil(time/60000)} minute(s).` };
 }
