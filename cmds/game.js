@@ -198,18 +198,17 @@ module.exports = {
                 if (!fs.existsSync(`./games/${args[0]}.json`)) {
                     fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
                 }
-                fs.readFile(`./games/${args[0]}.json`, (err, content) => {
-                    if (err) return console.error(err);
-                    let object = JSON.parse(content);
-
-                    sendRosterEmbed(args[0], undefined, object, message.channel);
-                });
+                const embed = await showCurrentRoster(args[0]);
+                return { embeds: [embed] };
             }
 
             // add message author to roster of specified game
             if (games.includes(args[0]) && args[1] === 'in') {
                 const name = (!message.member.nickname) ? message.author.username : message.member.nickname;
-                gameIn(message.author.id, name, message.channel, args);
+                // gameIn(message.author.id, name, message.channel, args);
+                // let reply;
+                if (args[2]) return gameIn(args[0], name, message.author.id, parseInt(args[2]) * 60000);
+                else return gameIn(args[0], name, message.author.id)
             }
 
             // remove message author from roster of specified game
@@ -296,12 +295,24 @@ module.exports = {
         if (commandGroup === 'roster' && subCommand === 'show') {
             // console.log(game);
             const interactionReply = await showCurrentRoster(game);
-            interaction.reply(interactionReply); //! showing TypeError: cannot read property fetchReply of undefined
+            interaction.reply({ embeds: [interactionReply] });
+        }
+        if (commandGroup === 'roster' && subCommand === 'in') {
+            const name = (!interaction.member.nickname) ? interaction.user.username : interaction.member.nickname;
+            let reply;
+            if (minutes) reply = await gameIn(game, name, interaction.user.id, minutes * 60000)
+            else reply = await gameIn(game, name, interaction.user.id);
+
+            interaction.reply(reply);
         }
 
     }
 }
-
+/**
+ * 
+ * @param {string} game name of game
+ * @returns embed object of roster
+ */
 async function showCurrentRoster(game) {
     if (!fs.existsSync(`./games/${game}.json`)) fs.writeFileSync(`./games/${game}.json`, JSON.stringify({}));
 
@@ -328,98 +339,49 @@ async function showCurrentRoster(game) {
         .setDescription(gamers.join('\n'))
         .addField('reserves', reserves.join('\n') || 'none');
 
-    return { embeds: [embed] };
+    return embed;
 }
+
 /**
  * 
- * @param {string} game Game being checked into
- * @param {string} remark Message for the bot to send, if empty put '' (empty string)
- * @param {Object} roster Roster object
- * @param {Object} channel message.channel
+ * @param {string} game name of game
+ * @param {string} playerName server nickname or username of player
+ * @param {string} playerId Discord ID of player
+ * @param {number} expirationLength length in minutes to stay checked in
+ * @returns reply object
  */
-// async function sendRosterEmbed(game, remark = undefined, roster, channel, mentionID = undefined) {
-//     let gamers = [];
-//     let reserves = [];
-//     for (const prop in roster) {
-//         gamers.push(`${roster[prop].name} - expires in ${Math.ceil(Math.trunc((roster[prop].expire - Date.now())/60000))} minute(s)`)
-//     }
-
-//     const readReserves = await fs.promises.readFile(`./games/reserves.json`);
-//     const reservesList = JSON.parse(readReserves);
-
-//     for (const p in reservesList) {
-//         const reservedGame = reservesList[p].args[0];
-//         if (reservedGame !== game) continue;
-
-//         const minutesLeft = Math.ceil((reservesList[p].time - Date.now()) / 60000);
-//         reserves.push(`${reservesList[p].name} in ${minutesLeft} minute(s)`);
-//     }
-
-//     const embed = new MessageEmbed()
-//         .setTitle(`${game} roster - ${gamers.length}`)
-//         .setColor('#ff5555')
-//         .setDescription(gamers.join('\n'))
-//         .addField('reserves', reserves.join('\n') || 'none');
-
-//     // if (remark === undefined) {
-//     //     return channel.send({ embeds: [embed], allowedMentions: [mentionID] });
-
-//     // }
-
-//     // channel.send(remark, { embed: embed, ...(mentionID && { reply: mentionID }) });
-//     return { embeds: [embed], ...(remark && { content: remark }) };
-//     // return {embeds: }
-// }
-
-/**
- * @param {String} discordID id of player
- * @param {String} name name of player
- * @param {String} channel channel id of message source 
- * @param {String[]} args arguments
- */
-async function gameIn(discordID, name, channel, args, mention = false) {
-    const expirationLength = (args[2] === undefined || isNaN(parseInt(args[2])) || parseInt(args[2]) > 300) ? expiration : Math.abs(parseInt(args[2]) * 60000);
-
-    const content = fs.readFileSync('./games/reserves.json');
-    const reserves = JSON.parse(content);
+async function gameIn(game, playerName, playerId, expirationLength = expiration) {
+    const reserves = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
 
     for (r in reserves) {
-        if (reserves[r].id === discordID) delete reserves[r];
+        if (reserves[r].id === playerId) delete reserves[r];
     }
 
-    fs.writeFile('./games/reserves.json', JSON.stringify(reserves, null, '\t'), err => {
-        if (err) return console.error(err);
-    });
+    fs.writeFileSync('./games/reserves.json', JSON.stringify(reserves, null, '\t'));
 
-    if (!fs.existsSync(`./games/${args[0]}.json`)) {
-        fs.writeFileSync(`./games/${args[0]}.json`, JSON.stringify({}));
+    if (!fs.existsSync(`./games/${game}.json`)) fs.writeFileSync(`./games/${game}.json`, JSON.stringify({}));
+
+    const gamers = JSON.parse(fs.readFileSync(`./games/${game}.json`, 'utf-8'));
+
+    if (Object.keys(gamers).indexOf(playerId) > -1) {
+        gamers[playerId]['expire'] = Date.now() + (parseInt(expirationLength));
+
+        fs.writeFileSync(`./games/${game}.json`, JSON.stringify(gamers, null, '\t'))
+        const embed = await showCurrentRoster(game);
+        return { content: `You've updated your check in.`, embeds: [embed] };
     }
-    fs.readFile(`./games/${args[0]}.json`, (err, content) => {
-        if (err) return console.error(err);
-        let gamers = JSON.parse(content);
 
-        if (Object.keys(gamers).indexOf(discordID) > -1) {
-            gamers[discordID]['expire'] = Date.now() + expirationLength;
-            sendRosterEmbed(args[0], `You've updated your check in.`, gamers, channel);
+    gamers[playerId] = {
+        name: playerName,
+        expire: Date.now() + expirationLength
+    }
 
-            fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-                if (err) return console.error(err);
-            });
-            return;
-        }
-        gamers[discordID] = {
-            name: name,
-            expire: Date.now() + expirationLength
-        };
+    fs.writeFileSync(`./games/${game}.json`, JSON.stringify(gamers, null, '\t'));
 
-        fs.writeFile(`./games/${args[0]}.json`, JSON.stringify(gamers, null, '\t'), err => {
-            if (err) return console.error(err);
-        });
-
-        const mentionID = (mention) ? discordID : undefined
-        sendRosterEmbed(args[0], `You're now on the ${args[0]} roster.`, gamers, channel, mentionID);
-    });
+    const embed = await showCurrentRoster(game);
+    return { content: `You're now on the ${game} roster.`, embeds: [embed] };
 }
+
 
 async function gameReserve() {
 
