@@ -6,13 +6,50 @@ const { v4: uuidv4 } = require('uuid');
 const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
 // const games = JSON.parse(gamesObject).games;
 
-const choices = [];
-for (g of games) {
-    choices.push({
-        name: g,
-        value: g
-    });
-}
+// const choices = [];
+// for (g of games) {
+//     choices.push({
+//         name: g,
+//         value: g
+//     });
+// }
+const choices = [{
+    name: 'Apex Legends',
+    value: 'apex'
+}, {
+    name: 'Civilisation series',
+    value: 'civ'
+}, {
+    name: 'Counter Strike: Global Offensive',
+    value: 'csgo'
+}, {
+    name: 'Counter Strike: Global Offensive 10 man',
+    value: 'csgo10'
+}, {
+    name: 'Party Games',
+    value: 'partygames'
+}, {
+    name: 'Overwatch',
+    value: 'overwatch'
+}, {
+    name: 'Rocket League',
+    value: 'rocketleague'
+}, {
+    name: 'Sea of Thieves',
+    value: 'seaofthieves'
+}, {
+    name: 'Rainbow 6: Siege',
+    value: 'siege'
+}, {
+    name: 'Squad',
+    value: 'squad'
+}, {
+    name: 'Valorant',
+    value: 'valorant'
+}, {
+    name: 'VR Games',
+    value: 'vr'
+}]
 
 module.exports = {
     name: 'game',
@@ -30,7 +67,7 @@ module.exports = {
                     description: 'Name of the game',
                     type: 3,
                     required: true,
-                    // choices: choices
+                    choices: choices
                 }]
             },
             {
@@ -42,7 +79,7 @@ module.exports = {
                         description: 'Name of the game',
                         type: 3,
                         required: true,
-                        // choices: choices,
+                        choices: choices,
                     },
                     {
                         name: 'minutes',
@@ -61,7 +98,7 @@ module.exports = {
                     description: 'Name of the game',
                     type: 3,
                     required: true,
-                    // choices: choices
+                    choices: choices
                 }]
             },
             {
@@ -73,7 +110,7 @@ module.exports = {
                         description: 'Name of the game',
                         type: 3,
                         required: true,
-                        // choices: choices
+                        choices: choices
                     },
                     {
                         name: 'minutes',
