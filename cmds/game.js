@@ -216,7 +216,7 @@ module.exports = {
         const game = interaction.options.getString('game');
         const minutes = interaction.options.getInteger('minutes');
 
-        if (!games.includes(game)) interaction.reply({ content: `${game} is not on the list of games`, ephemeral: true });
+        if (commandGroup === 'roster' && !games.includes(game)) interaction.reply({ content: `${game} is not on the list of games`, ephemeral: true });
 
         if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
         if (commandGroup === 'roster' && subCommand === 'show') {
