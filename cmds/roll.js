@@ -2,26 +2,16 @@ module.exports = {
     name: 'roll',
     description: 'Roll XdY dice\nX = number of dice\nY = number of sides',
     options: [{
-            name: 'total',
-            type: 1,
-            description: 'Return total of rolled dice',
-            options: [{
-                name: 'dice',
-                type: 3,
-                description: 'Dice to roll (XdY)',
-                required: true
-            }]
+            name: 'dice',
+            type: 3,
+            description: 'Dice to roll (XdY)',
+            required: true
         },
         {
             name: 'verbose',
-            type: 1,
-            description: 'Return value of each rolled die',
-            options: [{
-                name: 'dice',
-                type: 3,
-                description: 'Dice to roll (XdY)',
-                required: true
-            }]
+            type: 5,
+            description: 'Set to true to return the value of each rolled die',
+            required: false
         }
     ],
     execute: async (bot, message, args, child) => {
@@ -29,15 +19,11 @@ module.exports = {
         return roll(args);
     },
     interact: async interaction => {
-        const subcommand = interaction.options.getSubcommand();
-        const args = interaction.options.getString('dice');
-        // console.log(interaction.options);
-        let dice;
-        // const Roll = await roll(args);
-        if (subcommand === 'total') dice = await roll([args]);
-        if (subcommand === 'verbose') dice = await rollVerbose([args]);
-        interaction.reply(dice);
-        // interaction.reply('test');
+        const dice = interaction.options.getString('dice');
+        const verbose = interaction.options.getBoolean('verbose')
+
+        if (verbose) return interaction.reply(await rollVerbose([dice]))
+        interaction.reply(await roll([dice]))
     }
 }
 

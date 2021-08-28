@@ -59,7 +59,7 @@ module.exports = {
     description: 'currently disabled',
     execute: async (bot, message, args, child) => {
         // message.channel.send('Scrim function is currently disabled.');
-        return 'Scrim function currently disabled';
+        // return 'Scrim function currently disabled';
     },
     interact: async interaction => {
         interaction.reply('Scrim function currently disabled');
