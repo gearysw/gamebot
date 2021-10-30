@@ -1,19 +1,25 @@
+const { SlashCommandBuilder } = require('@discordjs/builders')
+
 module.exports = {
-    name: 'roll',
-    description: 'Roll XdY dice\nX = number of dice\nY = number of sides',
-    options: [{
-            name: 'dice',
-            type: 3,
-            description: 'Dice to roll (XdY)',
-            required: true
-        },
-        {
-            name: 'verbose',
-            type: 5,
-            description: 'Set to true to return the value of each rolled die',
-            required: false
-        }
-    ],
+    data: new SlashCommandBuilder().setName('roll').setDescription('Roll XdY dice\nX=number of dice\nY=number of sides')
+        .addIntegerOption(opt => opt.setName('dice').setDescription('Dice to roll (XdY)').setRequired(true))
+        .addBooleanOption(opt => opt.setName('verbose').setDescription('Set to true to return the value of each rolled die')),
+    // name: 'roll',
+    // description: 'Roll XdY dice\nX = number of dice\nY = number of sides',
+    // options: [{
+    //         name: 'dice',
+    //         type: 3,
+    //         description: 'Dice to roll (XdY)',
+    //         required: true
+    //     },
+    //     {
+    //         name: 'verbose',
+    //         type: 5,
+    //         description: 'Set to true to return the value of each rolled die',
+    //         required: false
+    //     }
+    // ],
+    isSlashCommand: true,
     execute: async (bot, message, args, child) => {
         if (['v', 'verbose'].includes(args[1])) return rollVerbose(args);
         return roll(args);

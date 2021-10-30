@@ -1,9 +1,12 @@
 const { MessageEmbed } = require('discord.js');
 const fs = require('fs');
+const { SlashCommandBuilder } = require('@discordjs/builders')
 
 module.exports = {
-    name: 'help',
-    description: 'List of available commands',
+    // name: 'help',
+    // description: 'List of available commands',
+    data: new SlashCommandBuilder().setName('help').setDescription('List of available commands'),
+    isSlashCommand: true,
     execute: async (bot, message, args, child) => {
         const gamesObject = await fs.promises.readFile('./games.json', 'utf-8');
         const games = JSON.parse(gamesObject).games;

@@ -3,9 +3,11 @@ const axios = require('axios');
 const Discord = require('discord.js');
 
 module.exports = {
-    name: 'instants',
+    data: {
+        name: 'instants',
+        description: 'Search for instant sounds on myinstands.com'
+    },
     aliases: ['myinstants', 'instantsounds'],
-    description: 'Search for instant sounds on myinstants.com',
     execute: async (bot, message, args, child) => {
         const searchTerms = args.join('+');
         const url = `https://www.myinstants.com/search/?name=${searchTerms}`;

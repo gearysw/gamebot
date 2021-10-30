@@ -55,8 +55,10 @@ class Roster {
 }
 
 module.exports = {
-    name: 'scrim',
-    description: 'currently disabled',
+    data: {
+        name: 'scrim',
+        description: 'currently disabled'
+    },
     execute: async (bot, message, args, child) => {
         // message.channel.send('Scrim function is currently disabled.');
         // return 'Scrim function currently disabled';

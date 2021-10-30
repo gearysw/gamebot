@@ -4,6 +4,7 @@ const fs = require('fs');
 const bot = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS], allowedMentions: { parse: ['users', 'roles'], repliedUser: true } });
 // const { spawn } = require('child_process');
 const commandCache = require('./commands.json');
+// const games = require('./games.json').games
 
 bot.commands = new Collection();
 
@@ -11,7 +12,7 @@ const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'
 
 for (const f of commandFiles) {
     const command = require(`./cmds/${f}`);
-    bot.commands.set(command.name, command);
+    bot.commands.set(command.data.name, command);
 }
 
 const child = 'spawn'; //* Use this if the bot doesn't need to use node's child processes
@@ -88,6 +89,18 @@ bot.on('messageCreate', async (message) => {
 bot.on('interactionCreate', async interaction => {
     if (interaction.isCommand()) commandHandler(interaction);
     if (interaction.isButton()) buttonHandler(interaction);
+    if (interaction.isAutocomplete() && interaction.commandName === 'game') {
+        const gamesFile = await fs.promises.readFile('./games.json')
+        const games = JSON.parse(gamesFile).games
+
+        const currentValue = interaction.options.getFocused()
+        const searchResults = games.filter(item => item.includes(currentValue))
+        const response = []
+        for (const i of searchResults) {
+            response.push({ name: i, value: i })
+        }
+        interaction.respond(response)
+    }
 });
 
 async function setCommandPermissions() {

@@ -6,8 +6,10 @@ const { readdirSync, writeFile } = require('fs');
 const rest = new REST({ version: '9' }).setToken(token);
 
 module.exports = {
-    name: 'deploy',
-    description: 'Deploy/update slash commands',
+    data: {
+        name: 'deploy',
+        description: 'Deploy/update slash commands'
+    },
     default_permission: false,
     interact: async interaction => {
         const client = interaction.client;

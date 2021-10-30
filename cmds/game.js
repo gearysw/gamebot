@@ -2,6 +2,7 @@ const { MessageEmbed } = require('discord.js');
 const fs = require('fs');
 const { expiration } = require('../config.json');
 const { v4: uuidv4 } = require('uuid');
+const { } = require('@discordjs/builders')
 
 const games = JSON.parse(fs.readFileSync('./games.json', 'utf-8')).games;
 // const games = JSON.parse(gamesObject).games;
@@ -52,116 +53,181 @@ const choices = [{
 }]
 
 module.exports = {
-    name: 'game',
-    description: 'Add yourself to the list of people looking to join a game',
-    options: [{
-        name: 'roster',
-        description: 'Game roster commands',
-        type: 2,
+    // name: 'game',
+    // description: 'Add yourself to the list of people looking to join a game',
+    // options: [{
+    //     name: 'roster',
+    //     description: 'Game roster commands',
+    //     type: 2,
+    //     options: [{
+    //         name: 'show',
+    //         description: 'Show roster of a game',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true,
+    //             choices: choices
+    //         }]
+    //     },
+    //     {
+    //         name: 'in',
+    //         description: 'Check into a game roster',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true,
+    //             choices: choices,
+    //         },
+    //         {
+    //             name: 'minutes',
+    //             description: 'How long to check in for. If omitted, defaults to 75 minutes.',
+    //             type: 4,
+    //             required: false
+    //         }
+    //         ]
+    //     },
+    //     {
+    //         name: 'out',
+    //         description: 'Check out of a game roster',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true,
+    //             choices: choices
+    //         }]
+    //     },
+    //     {
+    //         name: 'reserve',
+    //         description: 'Reserve a spot on the game roster',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true,
+    //             choices: choices
+    //         },
+    //         {
+    //             name: 'minutes',
+    //             description: 'How long until you check in. If omitted, defaults to 30 minutes.',
+    //             type: 4,
+    //             require: false
+    //         }
+    //         ]
+    //     },
+    //     {
+    //         name: 'clear',
+    //         description: 'Clear the roster of a game',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true
+    //         }]
+    //     }
+    //     ]
+    // }, {
+    //     name: 'list',
+    //     description: 'Game list commands',
+    //     type: 2,
+    //     options: [{
+    //         name: 'add',
+    //         description: 'Add a game into the list',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true
+    //         }]
+    //     }, {
+    //         name: 'remove',
+    //         description: 'Remove a game from the list',
+    //         type: 1,
+    //         options: [{
+    //             name: 'game',
+    //             description: 'Name of the game',
+    //             type: 3,
+    //             required: true
+    //         }]
+    //     }, {
+    //         name: 'show',
+    //         description: 'Returns the list of saved games',
+    //         type: 1
+    //     }]
+    // }],
+    data: {
+        name: 'game',
+        description: 'Add yourself to the list of people looking to join a game',
         options: [{
-                name: 'show',
-                description: 'Show roster of a game',
-                type: 1,
-                options: [{
-                    name: 'game',
-                    description: 'Name of the game',
+            name: 'roster',
+            description: 'Game roster commands',
+            type: 1,
+            options: [
+                {
+                    name: 'command',
+                    description: 'What command you want to perform',
                     type: 3,
                     required: true,
-                    choices: choices
-                }]
-            },
-            {
-                name: 'in',
-                description: 'Check into a game roster',
-                type: 1,
-                options: [{
-                        name: 'game',
-                        description: 'Name of the game',
-                        type: 3,
-                        required: true,
-                        choices: choices,
-                    },
-                    {
-                        name: 'minutes',
-                        description: 'How long to check in for. If omitted, defaults to 75 minutes.',
-                        type: 4,
-                        required: false
-                    }
-                ]
-            },
-            {
-                name: 'out',
-                description: 'Check out of a game roster',
-                type: 1,
-                options: [{
+                    choices: [{
+                        name: 'Show roster',
+                        value: 'show'
+                    }, {
+                        name: 'Check in',
+                        value: 'in'
+                    }, {
+                        name: 'Check out',
+                        value: 'out'
+                    }, {
+                        name: 'Reserve place',
+                        value: 'reserve'
+                    }]
+                }, {
                     name: 'game',
-                    description: 'Name of the game',
+                    description: 'Game roster to perform command on',
                     type: 3,
-                    required: true,
-                    choices: choices
-                }]
-            },
-            {
-                name: 'reserve',
-                description: 'Reserve a spot on the game roster',
-                type: 1,
-                options: [{
-                        name: 'game',
-                        description: 'Name of the game',
-                        type: 3,
-                        required: true,
-                        choices: choices
-                    },
-                    {
-                        name: 'minutes',
-                        description: 'How long until you check in. If omitted, defaults to 30 minutes.',
-                        type: 4,
-                        require: false
-                    }
-                ]
-            },
-            {
-                name: 'clear',
-                description: 'Clear the roster of a game',
-                type: 1,
-                options: [{
-                    name: 'game',
-                    description: 'Name of the game',
-                    type: 3,
+                    autocomplete: true,
                     required: true
+                }, {
+                    name: 'minutes',
+                    description: 'How long (minutes) to check in for or reserve your spot. Default 75 for check in and 30 for reserve',
+                    type: 4,
+                    required: false
                 }]
-            }
-        ]
-    }, {
-        name: 'list',
-        description: 'Game list commands',
-        type: 2,
-        options: [{
-            name: 'add',
-            description: 'Add a game into the list',
+        }, {
+            name: 'list',
+            description: 'Game list commands',
             type: 1,
             options: [{
-                name: 'game',
-                description: 'Name of the game',
+                name: 'command',
+                description: 'What command you want to perform',
                 type: 3,
-                required: true
-            }]
-        }, {
-            name: 'remove',
-            description: 'Remove a game from the list',
-            type: 1,
-            options: [{
+                required: true,
+                choices: [{
+                    name: 'Add game to list of games',
+                    value: 'add'
+                }, {
+                    name: 'Remove game from list of games',
+                    value: 'remove'
+                }, {
+                    name: 'Show list of games',
+                    value: 'show'
+                }]
+            }, {
                 name: 'game',
-                description: 'Name of the game',
-                type: 3,
-                required: true
+                description: 'What game you want to add to or remove from the list',
+                type: 3
             }]
-        }, {
-            name: 'show',
-            description: 'Returns the list of saved games',
-            type: 1
         }]
-    }],
+    },
+    isSlashCommand: true,
     execute: async (bot, message, args, child) => {
         // const gamesObject = await fs.promises.readFile('./games.json', 'utf8');
         // const games = JSON.parse(gamesObject).games;
@@ -248,20 +314,32 @@ module.exports = {
         return reply;
     },
     interact: async (interaction) => {
-        const commandGroup = interaction.options.getSubcommandGroup();
+        // const commandGroup = interaction.options.getSubcommandGroup();
+        // console.log(interaction.options.getSubcommand())
         const subCommand = interaction.options.getSubcommand();
         const game = interaction.options.getString('game');
         const minutes = interaction.options.getInteger('minutes');
+        const command = interaction.options.getString('command')
 
-        if (commandGroup === 'roster' && !games.includes(game)) interaction.reply({ content: `${game} is not on the list of games`, ephemeral: true });
+        // if (interaction.isAutoComplete()) {
+        //     const currentValue = interaction.options.getFocused()
+        //     const searchResults = games.filter(item => item.includes(currentValue))
+        //     const response = []
+        //     for (let i of searchResults) {
+        //         response.push({ name: i, value: i })
+        //     }
+        //     interaction.respond(response)
+        // }
 
-        if (commandGroup === 'list' && subCommand === 'show') interaction.reply(games.sort().join(', '));
-        if (commandGroup === 'roster' && subCommand === 'show') {
+        if (subCommand === 'roster' && !games.includes(game)) interaction.reply({ content: `${game} is not on the list of games`, ephemeral: true });
+
+        if (subCommand === 'list' && command === 'show') interaction.reply(games.sort().join(', '));
+        if (subCommand === 'roster' && command === 'show') {
             // console.log(game);
             const interactionReply = await showCurrentRoster(game);
             interaction.reply({ embeds: [interactionReply] });
         }
-        if (commandGroup === 'roster' && subCommand === 'in') {
+        if (subCommand === 'roster' && command === 'in') {
             const name = (!interaction.member.nickname) ? interaction.user.username : interaction.member.nickname;
             let reply;
             if (minutes) reply = await gameIn(game, name, interaction.user.id, minutes * 60000)
@@ -269,11 +347,11 @@ module.exports = {
 
             interaction.reply(reply);
         }
-        if (commandGroup === 'roster' && subCommand === 'out') {
+        if (subCommand === 'roster' && command === 'out') {
             const reply = await gameOut(game, interaction.user.id);
             interaction.reply(reply);
         }
-        if (commandGroup === 'roster' && subCommand === 'reserve') {
+        if (subCommand === 'roster' && command === 'reserve') {
             const name = (!interaction.member.nickname) ? interaction.user.username : interaction.member.nickname;
             let reply;
             if (minutes) reply = await gameReserve(game, interaction.user.id, name, interaction.channelId, minutes * 60000);
@@ -281,11 +359,19 @@ module.exports = {
 
             interaction.reply(reply);
         }
-        if (commandGroup === 'list' && subCommand === 'add') {
+        if (subCommand === 'list' && command === 'add') {
+            if (!game) {
+                interaction.reply({ content: 'Please include a game to add to the list.', ephemeral: true })
+                return
+            }
             const reply = await addGame(game);
             interaction.reply(reply);
         }
-        if (commandGroup === 'list' && subCommand === 'remove') {
+        if (subCommand === 'list' && command === 'remove') {
+            if (!game) {
+                interaction.reply({ content: 'Please include a game to remove from the list.', ephemeral: true })
+                return
+            }
             const reply = await removeGame(game);
             interaction.reply(reply);
         }
@@ -304,7 +390,7 @@ async function showCurrentRoster(game) {
     const reserves = [];
 
     for (const p in roster) {
-        gamers.push(`${roster[p].name} - expires in ${Math.ceil(Math.trunc((roster[p].expire - Date.now())/60000))} minute(s)`)
+        gamers.push(`${roster[p].name} - expires in ${Math.ceil(Math.trunc((roster[p].expire - Date.now()) / 60000))} minute(s)`)
     }
 
     const reservedPlayers = JSON.parse(fs.readFileSync('./games/reserves.json', 'utf-8'));
@@ -418,7 +504,7 @@ async function gameReserve(game, playerId, playerName, channel, time = 1800000) 
 
     fs.writeFileSync('./games/reserves.json', JSON.stringify(reserves, null, '\t'));
 
-    return { content: `You've reserved your spot on ${game} in ${Math.ceil(time/60000)} minute(s).` };
+    return { content: `You've reserved your spot on ${game} in ${Math.ceil(time / 60000)} minute(s).` };
 }
 
 /**
