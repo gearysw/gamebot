@@ -10,7 +10,6 @@ const bot = new Client({
     ],
     allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
 })
-// const { spawn } = require('child_process');
 
 bot.commands = new Collection()
 // const commandFiles = fs.readdirSync('./cmds').filter(file => file.endsWith('.js'))
@@ -23,6 +22,11 @@ for (const f of commandFiles) {
         console.error(`[WARNING] command ${f} is missing 'data' or 'execute' property`)
     }
 }
+//* makes sure required folders and files exists
+if (!fs.existsSync('games')) fs.mkdirSync('games')
+if (!fs.existsSync('./games/reserves.json')) fs.writeFileSync('./games/reserves.json', JSON.stringify({}))
+if (!fs.existsSync('./games.json')) fs.writeFileSync('./games.json', JSON.stringify({}))
+
 
 bot.login(token);
 
@@ -82,5 +86,13 @@ bot.on(Events.InteractionCreate, async interaction => {
         } catch (error) {
             console.error(error)
         }
+    }
+})
+
+bot.on(Events.MessageCreate, async message => {
+    if (!message.author.bot && message.content.startsWith(prefix)) {
+        command = message.content.substring(1).split(/ +/)[0]
+        if (!bot.commands.get(command)) return
+        message.channel.send(`Prefix commands (!) are deprecated. Please use the slash (/) commands.`)
     }
 })

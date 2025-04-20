@@ -51,6 +51,7 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
+        if (!fs.existsSync('./games/reserves.json')) fs.writeFileSync('./games/reserves.json', JSON.stringify({}))
         switch (interaction.options.getSubcommand()) {
             case 'roster':
                 const rosterCommand = interaction.options.getString('command')
