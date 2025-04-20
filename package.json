@@ -5,10 +5,6 @@
     "main": "bot.js",
     "dependencies": {
         "@discordjs/builders": "^0.8.2",
-        "@discordjs/rest": "^0.1.0-canary.0",
-        "axios": "^0.21.1",
-        "cheerio": "^1.0.0-rc.10",
-        "discord-api-types": "^0.24.0",
         "discord.js": "^14.18.0",
         "uuid": "^8.3.2"
     },

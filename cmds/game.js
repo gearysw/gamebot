@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-// const { execute } = require('./game');
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid')
 const { expiration } = require('../config.json')
